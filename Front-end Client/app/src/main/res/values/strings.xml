@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Nourri</string>
+    <string name="recipe">Recipes</string>
+    <string name="addIngredients">Add Ingredients</string>
+    <string name="title">Title</string>
+    <string name="summary">Summary</string>
+    <string name="generate">Generate Recipe</string>
+    <string name="addIngredientsCcal">0 ccal</string>
+</resources>
