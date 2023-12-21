@@ -35,39 +35,41 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/homeLabel"
             app:layout_constraintVertical_bias="0.03"
-            tools:listitem="@layout/ingredients_list"/>
+            tools:listitem="@layout/ingredients_list" />
 
         <Button
             android:id="@+id/generateBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="16dp"
             android:backgroundTint="@color/green"
+            android:fontFamily="sans-serif-medium"
             android:text="@string/generate"
             android:textSize="18sp"
-            android:fontFamily="sans-serif-medium"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ingredientsRV"
-            app:layout_constraintVertical_bias="0.2" />
+            app:layout_constraintVertical_bias="0.0" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/addButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:src="@drawable/ic_add_24"
-            android:foregroundTint="@color/white"
             android:backgroundTint="@color/green"
+            android:clickable="true"
             android:contentDescription="@string/addIngredients"
+            android:foreground="@drawable/ic_add_24"
+            android:layout_margin="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.98"
+            app:layout_constraintHorizontal_bias="1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.98" />
+            app:layout_constraintVertical_bias="1" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

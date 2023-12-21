@@ -1,5 +1,6 @@
 package com.example.projectrm
 
+import ChatGPTAsyncTask
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
@@ -33,6 +34,8 @@ import android.util.Base64
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
@@ -73,9 +76,15 @@ class AddIngredients : Fragment(), DeleteInterface {
         ingredientsRV.adapter = ingredientsAdapter
         ingredientsRV.setHasFixedSize(true)
 
+        val chatGPTAsyncTask = ChatGPTAsyncTask("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") { response ->
+            // Handle the response on the main thread
+            // Update UI or perform other actions here
+            println("Response: $response")
+        }
+
         generateButton = view.findViewById(R.id.generateBtn)
         generateButton.setOnClickListener {
-            // TODO: Implement logic for generating recipe based on ingredientsData
+            chatGPTAsyncTask.execute("Make me a food recipe!")
         }
 
         addButton = view.findViewById(R.id.addButton)
@@ -103,31 +112,49 @@ class AddIngredients : Fragment(), DeleteInterface {
     }
 
     private fun addManually() {
-        val view1: View = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_layout, null)
-        val ingredientsTextField: EditText = view1.findViewById(R.id.ingredientsTextField)
-        val alertDialogBuilder = AlertDialog.Builder(requireContext())
-        with(alertDialogBuilder) {
-            setTitle("Add Ingredients Manually")
-            setMessage("13 ingredients available")
-            setView(view1)
-            setPositiveButton("Done") { _, _ ->
-                val item = ingredientsTextField.text.toString()
-//
-                ingredientsData.add(IngredientsModel(item, 0f))
-                ingredientsAdapter.notifyDataSetChanged()
+        getAllItemInfo { ingredientList ->
+            val ingredientNames = ingredientList.map { it.name }.toTypedArray()
 
-//                makeLocalAPIRequest(item)
-            }
-            setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
+            val builder = AlertDialog.Builder(requireContext())
+            builder.setTitle("Add Ingredients Manually")
+                .setSingleChoiceItems(ingredientNames, -1) { dialog, index ->
+                    val selectedIngredient = ingredientList[index]
+
+                    if(!(ingredientsData.contains(selectedIngredient) || detectedItems.contains(selectedIngredient.name))) {
+                        Handler(Looper.getMainLooper()).post {
+                            ingredientsData.add(selectedIngredient)
+                            detectedItems.add(selectedIngredient.name)
+                            ingredientsAdapter.notifyDataSetChanged()
+                            generateButton.visibility = View.VISIBLE
+                        }
+                    } else {
+                        Handler(Looper.getMainLooper()).post {
+                            Toast.makeText(
+                                activity,
+                                "Item already on the list!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
+
+            val alertDialog = builder.create()
+            alertDialog.show()
         }
-        val builder = alertDialogBuilder.create()
-        builder.show()
     }
+
 
     override fun onItemRemoved(position: Int) {
         detectedItems.remove(ingredientsData[position].name)
         ingredientsData.removeAt(position)
         ingredientsAdapter.notifyDataSetChanged()
+
+        if(ingredientsData.isEmpty()) {
+            generateButton.visibility = View.GONE
+        }
     }
 
     private fun checkCameraPermission() {
@@ -239,10 +266,21 @@ class AddIngredients : Fragment(), DeleteInterface {
                             val predictedClass = prediction.getString("class")
                             val predictedConfidence = prediction.getDouble("confidence")
 
-                            if (!detectedItems.contains(predictedClass) && predictedConfidence >= 0.5) {
-                                detectedItems.add(predictedClass)
-                                println("Predicted Class $i: $predictedClass")
-                                makeLocalAPIRequest(predictedClass)
+                            if (!detectedItems.contains(predictedClass)) {
+                                if (predictedConfidence >= 0.5) {
+                                    detectedItems.add(predictedClass)
+                                    println("Predicted Class $i: $predictedClass")
+                                    getItemInfo(predictedClass)
+                                } else {
+                                    Handler(Looper.getMainLooper()).post {
+                                        Toast.makeText(
+                                            activity,
+                                            "Identification confidence is insufficient!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+
                             }
                         }
                     } else {
@@ -266,43 +304,86 @@ class AddIngredients : Fragment(), DeleteInterface {
         }
     }
 
-    private fun makeLocalAPIRequest(detectedIngredient: String) {
-        trustAllCertificates()
-        val localAPIURL = "https://172.20.10.3:3000/get-ingredient-info/$detectedIngredient"
-        val localAPIConnection = URL(localAPIURL).openConnection() as HttpURLConnection
+    private fun getItemInfo(detectedIngredient: String) {
+        GlobalScope.launch(Dispatchers.IO) {
+            trustAllCertificates()
+            val localAPIURL = "https://172.20.10.2:3000/get-ingredient-info/$detectedIngredient"
+            val localAPIConnection = URL(localAPIURL).openConnection() as HttpURLConnection
 
-        try {
-            localAPIConnection.requestMethod = "GET"
+            try {
+                localAPIConnection.requestMethod = "GET"
 
-//            printLn("GET $detectedIngredient from local host.")
+                // Get Response from localhost:3000
+                val localAPIStream = localAPIConnection.inputStream
+                val localAPIReader = BufferedReader(InputStreamReader(localAPIStream))
+                var localAPILine: String?
+                val localAPIResponse = StringBuilder()
+                while (localAPIReader.readLine().also { localAPILine = it } != null) {
+                    localAPIResponse.append(localAPILine)
+                }
+                localAPIReader.close()
 
-            // Get Response from localhost:3000
-            val localAPIStream = localAPIConnection.inputStream
-            val localAPIReader = BufferedReader(InputStreamReader(localAPIStream))
-            var localAPILine: String?
-            val localAPIResponse = StringBuilder()
-            while (localAPIReader.readLine().also { localAPILine = it } != null) {
-                localAPIResponse.append(localAPILine)
+                // Parse JSON response from localhost:3000
+                val localAPIJson = JSONObject(localAPIResponse.toString())
+                val ingredientName = localAPIJson.getString("name")
+                val ingredientCcal = localAPIJson.getString("ccal")
+
+                // Update RecyclerView with the retrieved data
+                withContext(Dispatchers.Main) {
+                    ingredientsData.add(IngredientsModel(ingredientName, ingredientCcal.toFloat()))
+                    ingredientsAdapter.notifyDataSetChanged()
+                    generateButton.visibility = View.VISIBLE
+                }
+
+            } finally {
+                localAPIConnection.disconnect()
             }
-            localAPIReader.close()
-
-            // Parse JSON response from localhost:3000
-            val localAPIJson = JSONObject(localAPIResponse.toString())
-            val ingredientName = localAPIJson.getString("name")
-            val ingredientCcal = localAPIJson.getString("ccal")
-
-            // Update RecyclerView with the retrieved data
-            GlobalScope.launch(Dispatchers.Main) {
-                ingredientsData.add(IngredientsModel(ingredientName, ingredientCcal.toFloat()))
-                ingredientsAdapter.notifyDataSetChanged()
-            }
-
-        } finally {
-            localAPIConnection.disconnect()
         }
     }
 
-    private fun trustAllCertificates() {
+    private fun getAllItemInfo(callback: (List<IngredientsModel>) -> Unit) {
+        GlobalScope.launch(Dispatchers.IO) {
+            trustAllCertificates()
+            val localAPIURL = "https://172.20.10.2:3000/get-ingredient/"
+            val localAPIConnection = URL(localAPIURL).openConnection() as HttpURLConnection
+
+            try {
+                localAPIConnection.requestMethod = "GET"
+
+                // Get Response from localhost:3000
+                val localAPIStream = localAPIConnection.inputStream
+                val localAPIReader = BufferedReader(InputStreamReader(localAPIStream))
+                var localAPILine: String?
+                val localAPIResponse = StringBuilder()
+                while (localAPIReader.readLine().also { localAPILine = it } != null) {
+                    localAPIResponse.append(localAPILine)
+                }
+                localAPIReader.close()
+
+                val localAPIArray = JSONArray(localAPIResponse.toString())
+                val ingredientList = ArrayList<IngredientsModel>()
+
+                for (i in 0 until localAPIArray.length()) {
+                    val ingredientObject = localAPIArray.getJSONObject(i)
+                    val ingredientName = ingredientObject.getString("name")
+                    val ingredientCcal = ingredientObject.getString("ccal")
+
+                    withContext(Dispatchers.Main) {
+                        ingredientList.add(IngredientsModel(ingredientName, ingredientCcal.toFloat()))
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    callback(ingredientList)
+                }
+
+            } finally {
+                localAPIConnection.disconnect()
+            }
+        }
+    }
+
+    public fun trustAllCertificates() {
         try {
             val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
                 override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
