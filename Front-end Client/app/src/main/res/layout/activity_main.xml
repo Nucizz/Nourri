@@ -24,6 +24,7 @@
         android:background="@drawable/custom_navbar"
         app:itemIconTint="@drawable/item_selector"
         app:itemTextColor="@drawable/item_selector"
+        app:itemActiveIndicatorStyle="@color/green"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

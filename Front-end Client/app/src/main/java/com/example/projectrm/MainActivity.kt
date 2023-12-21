@@ -20,24 +20,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //test backend
-
-//        val call: Call<List<RecipeModel>> = ApiService.getData()
-//
-//        call.enqueue(object : Callback<List<YourDataModel>> {
-//            override fun onResponse(call: Call<List<YourDataModel>>, response: Response<List<YourDataModel>>) {
-//                // Handle the successful response here
-//                val data = response.body()
-//                // Process the data as needed
-//            }
-//
-//            override fun onFailure(call: Call<List<YourDataModel>>, t: Throwable) {
-//                // Handle the failure here
-//                t.printStackTrace()
-//            }
-//        })
-
-
         // test backend
 
         bottomNav = findViewById(R.id.homeBottomNavbar)
@@ -51,7 +33,10 @@ class MainActivity : AppCompatActivity() {
                     loadFragment(AddIngredients())
                     true
                 }
-
+                R.id.about -> {
+                    loadFragment(AboutFragment())
+                    true
+                }
                 else -> {
                     false
                 }

@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -40,13 +42,17 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
-class AddIngredients : Fragment() {
+class AddIngredients : Fragment(), DeleteInterface {
 
     private lateinit var addButton: FloatingActionButton
     private lateinit var generateButton: Button
     private lateinit var ingredientsAdapter: IngredientsAdapter
     private lateinit var ingredientsRV: RecyclerView
     private var ingredientsData = ArrayList<IngredientsModel>()
+    private val detectedItems = HashSet<String>()
+
+
+
     private val CAMERA_PERMISSION_CODE = 1001
     private val CAMERA_REQUEST_CODE = 1002
 
@@ -62,7 +68,7 @@ class AddIngredients : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         ingredientsRV = view.findViewById(R.id.ingredientsRV)
-        ingredientsAdapter = IngredientsAdapter(ingredientsData)
+        ingredientsAdapter = IngredientsAdapter(ingredientsData, this)
         ingredientsRV.layoutManager = LinearLayoutManager(requireContext())
         ingredientsRV.adapter = ingredientsAdapter
         ingredientsRV.setHasFixedSize(true)
@@ -106,13 +112,22 @@ class AddIngredients : Fragment() {
             setView(view1)
             setPositiveButton("Done") { _, _ ->
                 val item = ingredientsTextField.text.toString()
+//
                 ingredientsData.add(IngredientsModel(item, 0f))
                 ingredientsAdapter.notifyDataSetChanged()
+
+//                makeLocalAPIRequest(item)
             }
             setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
         }
         val builder = alertDialogBuilder.create()
         builder.show()
+    }
+
+    override fun onItemRemoved(position: Int) {
+        detectedItems.remove(ingredientsData[position].name)
+        ingredientsData.removeAt(position)
+        ingredientsAdapter.notifyDataSetChanged()
     }
 
     private fun checkCameraPermission() {
@@ -184,7 +199,7 @@ class AddIngredients : Fragment() {
                 val MODEL_ENDPOINT = "food-ingredients-detection-nxe34/2" // Set model endpoint (Found in Dataset URL)
 
                 // Construct the URL
-                val uploadURL = "https://detect.roboflow.com/" + MODEL_ENDPOINT + "?api_key=" + API_KEY + "&name=YOUR_IMAGE.jpg"
+                val uploadURL = "https://detect.roboflow.com/" + MODEL_ENDPOINT + "?api_key=" + API_KEY + "&name=YOUR_IMAGE.jpg" + "&confidence=0.3" + "&overlap=0.9"
 
                 // Http Request
                 var connection: HttpURLConnection? = null
@@ -217,12 +232,29 @@ class AddIngredients : Fragment() {
 
                     val roboflowJson = JSONObject(response.toString())
                     val predictionsArray = roboflowJson.getJSONArray("predictions")
-                    for (i in 0 until predictionsArray.length()) {
-                        val prediction = predictionsArray.getJSONObject(i)
-                        val predictedClass = prediction.getString("class")
-                        println("Predicted Class $i: $predictedClass")
-                        makeLocalAPIRequest(predictedClass)
+                    val predictionsLen = predictionsArray.length()
+                    if(predictionsLen > 0) {
+                        for (i in 0 until predictionsLen) {
+                            val prediction = predictionsArray.getJSONObject(i)
+                            val predictedClass = prediction.getString("class")
+                            val predictedConfidence = prediction.getDouble("confidence")
+
+                            if (!detectedItems.contains(predictedClass) && predictedConfidence >= 0.5) {
+                                detectedItems.add(predictedClass)
+                                println("Predicted Class $i: $predictedClass")
+                                makeLocalAPIRequest(predictedClass)
+                            }
+                        }
+                    } else {
+                        Handler(Looper.getMainLooper()).post {
+                            Toast.makeText(
+                                activity,
+                                "Couldn't identify ingredients!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
+
                 } catch (e: Exception) {
                     e.printStackTrace()
                 } finally {
@@ -236,11 +268,13 @@ class AddIngredients : Fragment() {
 
     private fun makeLocalAPIRequest(detectedIngredient: String) {
         trustAllCertificates()
-        val localAPIURL = "https://192.168.0.122:3000/get-ingredient-info/$detectedIngredient"
+        val localAPIURL = "https://172.20.10.3:3000/get-ingredient-info/$detectedIngredient"
         val localAPIConnection = URL(localAPIURL).openConnection() as HttpURLConnection
 
         try {
             localAPIConnection.requestMethod = "GET"
+
+//            printLn("GET $detectedIngredient from local host.")
 
             // Get Response from localhost:3000
             val localAPIStream = localAPIConnection.inputStream
