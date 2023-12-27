@@ -1,6 +1,5 @@
 package com.example.projectrm
 
-import ChatGPTAsyncTask
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
@@ -15,7 +14,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.EditText
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -31,10 +29,7 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import android.util.Base64
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.security.SecureRandom
@@ -76,15 +71,10 @@ class AddIngredients : Fragment(), DeleteInterface {
         ingredientsRV.adapter = ingredientsAdapter
         ingredientsRV.setHasFixedSize(true)
 
-        val chatGPTAsyncTask = ChatGPTAsyncTask("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") { response ->
-            // Handle the response on the main thread
-            // Update UI or perform other actions here
-            println("Response: $response")
-        }
 
         generateButton = view.findViewById(R.id.generateBtn)
         generateButton.setOnClickListener {
-            chatGPTAsyncTask.execute("Make me a food recipe!")
+
         }
 
         addButton = view.findViewById(R.id.addButton)
