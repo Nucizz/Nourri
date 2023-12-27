@@ -1,94 +1,187 @@
-const express = require('express')
-const router = express.Router()
-const mysql = require('mysql');
-const dotenv = require('dotenv');
-const https = require('https');
-const fs = require('fs');
+const express = require("express");
+const router = express.Router();
+const mysql = require("mysql");
+const dotenv = require("dotenv");
+const https = require("https");
+const fs = require("fs");
 
-dotenv.config({ path: './.env' })
-
+dotenv.config({ path: "./.env" });
 
 //APP
-const app = express()
+const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/', router)
+app.use("/", router);
 
 const options = {
-    key: fs.readFileSync('server.key'),
-    cert: fs.readFileSync('server.cert')
+  key: fs.readFileSync("server.key"),
+  cert: fs.readFileSync("server.cert"),
 };
 
+app.use((req, res, next) => {
+  console.log(`Received ${req.method} request for ${req.url}`);
+  next();
+});
+
+app.use((err, req, res, next) => {
+  console.error('Global Error Handler:', err);
+  res.status(500).send('Internal Server Error');
+});
+
+
 https.createServer(options, app).listen(process.env.SERVER_PORT, () => {
-    console.log(`Nourri server running on port ${process.env.SERVER_PORT}`)
+  console.log(`Nourri server running on port ${process.env.SERVER_PORT}`);
 });
 
 app.use((req, res, next) => {
-    res.status(404).send('Not Found');
+  res.status(404).send("Not Found");
 });
-
 
 //DB
 const db = mysql.createConnection({
-    host: process.env.DATABASE_HOST,
-    user: process.env.DATABASE_USER,
-    password: process.env.DATABASE_PASSWORD,
-    database: process.env.DATABASE_NAME,
+  host: process.env.DATABASE_HOST,
+  user: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_NAME,
+  port: process.env.DATABASE_PORT,
 });
 
 db.connect((e) => {
-    e ? console.log(e) : console.log("MySQL is now connected");
+  e
+    ? console.log(e)
+    : console.log(
+      `MySQL is now connected on port ${process.env.DATABASE_PORT}`
+    );
 });
-
 
 //INGREDIENT
-const TABLE_INGREDIENT = 'ingredient'
+const TABLE_INGREDIENT = "ingredient";
 
-router.post('/add-ingredient', (req, res) => {
-    try {
-        const data = req.body;
-        if (!(data.name && data.ccal)) throw new Error("Data is NULL");
-        const q = 'INSERT INTO ?? (name, ccal) VALUES (?, ?)';
-        const values = [TABLE_INGREDIENT, data.name, data.ccal];
+router.post("/add-ingredient", (req, res) => {
+  try {
+    const data = req.body;
+    if (!(data.name && data.ccal)) throw new Error("Data is NULL");
+    const q = "INSERT INTO ?? (name, ccal) VALUES (?, ?)";
+    const values = [TABLE_INGREDIENT, data.name, data.ccal];
 
-        db.query(q, values, (e, result) => {
-            if (e) throw e;
-            res.send(result);
-        });
-    } catch (e) {
-        console.log(e);
-        res.status(403).send('Forbidden Request');
-    }
-
+    db.query(q, values, (e, result) => {
+      if (e) throw e;
+      res.send(result);
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(403).send("Forbidden Request");
+  }
 });
 
-router.get('/get-ingredient', (req, res) => {
-    try {
-        const q = 'SELECT * FROM ??';
-        const values = [TABLE_INGREDIENT];
+router.get("/get-ingredient", (req, res) => {
+  try {
+    const q = "SELECT * FROM ??";
+    const values = [TABLE_INGREDIENT];
 
-        db.query(q, values, (e, result) => {
-            if (e) throw e;
-            res.send(result);
-        });
-    } catch (e) {
-        console.log(e);
-        res.status(403).send('Forbidden Request');
-    }
+    db.query(q, values, (e, result) => {
+      if (e) throw e;
+      res.send(result);
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(403).send("Forbidden Request");
+  }
 });
 
-router.get('/get-ingredient-info/:name', (req, res) => {
-    try {
-        const q = 'SELECT * FROM ?? WHERE name = ?';
-        const values = [TABLE_INGREDIENT, req.params.name];
+router.get("/get-ingredient-info/:name", (req, res) => {
+  try {
+    const q = "SELECT * FROM ?? WHERE name = ?";
+    const values = [TABLE_INGREDIENT, req.params.name];
 
-        db.query(q, values, (e, result) => {
-            if (e) throw e;
-            res.send(result[0]);
-        });
-    } catch (e) {
-        console.log(e);
-        res.status(403).send('Forbidden Request');
-    }
+    db.query(q, values, (e, result) => {
+      if (e) throw e;
+      res.send(result[0]);
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(403).send("Forbidden Request");
+  }
 });
+
+router.post("/get-recipe", async (req, res) => {
+  try {
+    const data = req.body;
+    if (!data) throw new Error("Data is NULL");
+
+    const ingredientsList = data
+      .map((ingredient) => `- ${ingredient.name} - ${ingredient.ccal} ccal`)
+      .join("\n");
+
+    const message_template =
+      "Generate a healthy high nutritious recipe from these available ingredients (don't add other ingredients outside the specified one excepts for seasonings), alongside the nutrition calculation from the data given below:\n" +
+      ingredientsList + "\n" +
+      "Place the information into 4 big sections like below:\n" +
+      "- Ingredients, contains ingredients and nutrition calculation with layout (ingredient - nutrition) write list in points.\n" +
+      "- Instructions, contains instructions how to cook given ingredients write steps in points.\n" +
+      "- Summary, contains healthiness rating alongside the nutrition information write in paragraph.\n" +
+      "- Title, contains food/recipe title.";
+
+    const responseContent = await getChatGPTResponse(message_template);
+    console.log(`\nRecipe Requested:\n${responseContent}`);
+    res.json({ recipe: responseContent });
+  } catch (e) {
+    console.log(e);
+    res.status(403).send("Forbidden Request");
+  }
+});
+
+function getChatGPTResponse(message) {
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "You are a helpful assistant.",
+        },
+        {
+          role: "user",
+          content: message,
+        },
+      ],
+    });
+
+    const options = {
+      hostname: process.env.OPENAI_ENDPOINT,
+      path: "/v1/chat/completions",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_KEY}`,
+      },
+    };
+
+    const req = https.request(options, (res) => {
+      let responseData = "";
+
+      res.on("data", (chunk) => {
+        responseData += chunk;
+      });
+
+      res.on("end", () => {
+        try {
+          const response = JSON.parse(responseData);
+          resolve(response.choices[0].message.content);
+        } catch (error) {
+          console.error("Error parsing ChatGPT API response:", error.message);
+          reject(new Error("Error parsing ChatGPT API response"));
+        }
+      });
+    });
+
+    req.on("error", (error) => {
+      reject(new Error(`Error calling ChatGPT API: ${error.message}`));
+    });
+
+    req.write(data);
+    req.end();
+  });
+}
+
