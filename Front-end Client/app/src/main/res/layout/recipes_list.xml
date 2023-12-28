@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:padding="10dp"
+        android:clickable="true"
         android:background="@drawable/custom_recipe_card"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -32,6 +33,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:layout_marginVertical="4dp"
             android:background="@color/dark_green"/>
 
         <TextView
@@ -40,7 +42,9 @@
             android:layout_height="wrap_content"
             android:textColor="@color/dark_green"
             android:text="@string/summary"
-            android:textSize="18sp"/>
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:textSize="16sp"/>
 
 
 

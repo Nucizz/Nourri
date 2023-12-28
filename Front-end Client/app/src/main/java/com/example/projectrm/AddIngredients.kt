@@ -53,8 +53,6 @@ class AddIngredients : Fragment(), DeleteInterface {
     private var ingredientsData = ArrayList<IngredientsModel>()
     private val detectedItems = HashSet<String>()
 
-    private val localURL: String = "http://" + "192.168.1.8:3000"
-
     private val CAMERA_PERMISSION_CODE = 1001
     private val CAMERA_REQUEST_CODE = 1002
 
@@ -310,7 +308,7 @@ class AddIngredients : Fragment(), DeleteInterface {
 
     private fun getItemInfo(detectedIngredient: String) {
         GlobalScope.launch(Dispatchers.IO) {
-            val localAPIURL = "$localURL/get-ingredient-info/$detectedIngredient"
+            val localAPIURL = "${localURL.domain}/get-ingredient-info/$detectedIngredient"
             val localAPIConnection = URL(localAPIURL).openConnection() as HttpURLConnection
 
             try {
@@ -351,7 +349,7 @@ class AddIngredients : Fragment(), DeleteInterface {
             withContext(Dispatchers.Main) {
                 loadingBar.visibility = View.VISIBLE
             }
-            val localAPIURL = "$localURL/get-ingredient/"
+            val localAPIURL = "${localURL.domain}/get-ingredient/"
             val localAPIConnection = URL(localAPIURL).openConnection() as HttpURLConnection
 
             try {
@@ -395,7 +393,7 @@ class AddIngredients : Fragment(), DeleteInterface {
     private fun getGPTresponse() {
         loadingBar.visibility = View.VISIBLE
         val retrofit = Retrofit.Builder()
-            .baseUrl(localURL) // Replace with your API base URL
+            .baseUrl(localURL.domain) // Replace with your API base URL
             .addConverterFactory(GsonConverterFactory.create())
             .client(
                 OkHttpClient.Builder()
@@ -422,6 +420,10 @@ class AddIngredients : Fragment(), DeleteInterface {
                     intent.putExtra("instruction", responseBody?.instruction)
                     intent.putExtra("raw", responseBody?.raw)
                     startActivity(intent)
+
+                    ingredientsData.clear()
+                    detectedItems.clear()
+                    ingredientsAdapter.notifyDataSetChanged()
                 } else {
                     handleApiError(response)
                     loadingBar.visibility = View.GONE

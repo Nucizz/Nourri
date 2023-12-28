@@ -51,8 +51,9 @@ db.connect((e) => {
     );
 });
 
-//INGREDIENT
+// Router Functions and Queries
 const TABLE_INGREDIENT = "ingredient";
+const TABLE_RECIPE = "recipe";
 
 router.post("/add-ingredient", (req, res) => {
   try {
@@ -107,7 +108,7 @@ router.post("/get-recipe", async (req, res) => {
     if (!data) throw new Error("Data is NULL");
 
     const ingredientsList = data
-      .map((ingredient) => `- ${ingredient.name} - ${ingredient.ccal} ccal`)
+      .map((ingredient) => `- ${ingredient.name} with ${ingredient.ccal} calories/gram`)
       .join("\n");
 
     const message_template =
@@ -120,13 +121,44 @@ router.post("/get-recipe", async (req, res) => {
       "- Title, contains food/recipe title.";
 
     const responseContent = await getChatGPTResponse(message_template);
-    console.log(`\nRecipe Requested:\n${responseContent.title}`);
     res.json(responseContent);
+    addRecipeHistory(responseContent);
   } catch (e) {
     console.log(e);
     res.status(403).send("Forbidden Request");
   }
 });
+
+router.get("/get-all-recipe", async (req, res) => {
+  try {
+    const q = "SELECT * FROM ??";
+    const values = [TABLE_RECIPE];
+
+    db.query(q, values, (e, result) => {
+      if (e) throw e;
+      res.send(result);
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(403).send("Forbidden Request");
+  }
+});
+
+// Non-Router Functions
+async function addRecipeHistory(recipeContent) {
+  try {
+    if (!recipeContent) throw new Error("Data is NULL");
+    const q = "INSERT INTO ?? (title, ingredients, instructions, summary, raw) VALUES (?, ?, ?, ?, ?)";
+    const values = [TABLE_RECIPE, recipeContent.title, recipeContent.ingredients, recipeContent.instruction, recipeContent.summary, recipeContent.raw];
+
+    db.query(q, values, (e, result) => {
+      if (e) throw e;
+      console.log(`${recipeContent.title} is saved. [${result}]`)
+    });
+  } catch (e) {
+    console.log(e);
+  }
+}
 
 async function getChatGPTResponse(message) {
   return new Promise((resolve, reject) => {
