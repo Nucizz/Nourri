@@ -87,7 +87,7 @@ class HomeFragment : Fragment() {
                     val localAPIArray = JSONArray(localAPIResponse.toString())
                     val recipeList = ArrayList<RecipeModel>()
 
-                    for (i in 0 until localAPIArray.length()) {
+                    for (i in localAPIArray.length()-1 downTo  0) {
                         val recipeObject = localAPIArray.getJSONObject(i)
                         val recipeTitle = recipeObject.getString("title")
                         val recipeSummary = recipeObject.getString("summary")
