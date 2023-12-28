@@ -17,14 +17,6 @@ class HomeFragment : Fragment() {
     private lateinit var recipeAdapter: RecipeAdapter
     private var recipeData = ArrayList<RecipeModel>()
 
-    companion object {
-
-    }
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -59,11 +51,9 @@ class HomeFragment : Fragment() {
         }
     }
     fun initData(){
-        recipeData.add(RecipeModel("Salted Egg Chicken", "-Ayam 200gr -Telur Asin", "-masak aja lah ", "Ayam goreng tepung dibalur dengan saur telur asin ala uncle Cals😳", ""))
-        recipeData.add(RecipeModel("Salted Egg Chicken", "-Ayam 200gr -Telur Asin", "-masak aja lah ", "Ayam goreng tepung dibalur dengan saur telur asin ala uncle Cals😳", ""))
-        recipeData.add(RecipeModel("Salted Egg Chicken", "-Ayam 200gr -Telur Asin", "-masak aja lah ", "Ayam goreng tepung dibalur dengan saur telur asin ala uncle Cals😳", ""))
-        recipeData.add(RecipeModel("Salted Egg Chicken", "-Ayam 200gr -Telur Asin", "-masak aja lah ", "Ayam goreng tepung dibalur dengan saur telur asin ala uncle Cals😳", ""))
-        recipeData.add(RecipeModel("Salted Egg Chicken", "-Ayam 200gr -Telur Asin", "-masak aja lah ", "Ayam goreng tepung dibalur dengan saur telur asin ala uncle Cals😳", ""))
- }
+        for(i in 1..10) {
+            recipeData.add(RecipeModel("Salted Egg Chicken", "-Ayam 200gr -Telur Asin", "-masak aja lah ", "Ayam goreng tepung dibalur dengan saur telur asin ala uncle Cals😳", ""))
+        }
+    }
 
 }

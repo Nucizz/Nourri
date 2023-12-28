@@ -30,4 +30,5 @@
     <string name="ingredients">Ingredients</string>
     <string name="instructions">Instructions</string>
     <string name="generated_recipe">Generated Recipe</string>
+    <string name="generate_recipe">Generate Recipe</string>
 </resources>

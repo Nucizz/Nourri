@@ -30,13 +30,19 @@
         android:textSize="20sp"
         />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recipeRV"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:paddingBottom="100dp"
-        tools:listitem="@layout/recipes_list"
-        />
+        android:layout_height="match_parent"
+        android:layout_marginTop="8dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recipeRV"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="100dp"
+            tools:listitem="@layout/recipes_list"
+            />
+
+    </ScrollView>
 
 </LinearLayout>

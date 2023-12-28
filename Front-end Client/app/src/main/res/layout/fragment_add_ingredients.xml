@@ -52,6 +52,7 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/ingredientsRV"
+                tools:listitem="@layout/ingredients_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
@@ -63,7 +64,8 @@
                 android:backgroundTint="@color/green"
                 android:fontFamily="sans-serif-medium"
                 android:includeFontPadding="false"
-                android:text="Generate Recipe"
+                android:text="@string/generate_recipe"
+                android:paddingBottom="100dp"
                 android:textSize="18sp"
                 android:visibility="gone" />
 
