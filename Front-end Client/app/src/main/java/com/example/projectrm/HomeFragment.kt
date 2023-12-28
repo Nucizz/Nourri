@@ -59,11 +59,11 @@ class HomeFragment : Fragment() {
         }
     }
     fun initData(){
-        recipeData.add(RecipeModel("Salted Egg Chicken", "-Ayam 200gr -Telur Asin", "-masak aja lah ", "Ayam goreng tepung dibalur dengan saur telur asin ala uncle Cals😳"))
-        recipeData.add(RecipeModel("Salted Egg Chicken", "-Ayam 200gr -Telur Asin", "-masak aja lah ", "Ayam goreng tepung dibalur dengan saur telur asin ala uncle Cals😳"))
-        recipeData.add(RecipeModel("Salted Egg Chicken", "-Ayam 200gr -Telur Asin", "-masak aja lah ", "Ayam goreng tepung dibalur dengan saur telur asin ala uncle Cals😳"))
-        recipeData.add(RecipeModel("Salted Egg Chicken", "-Ayam 200gr -Telur Asin", "-masak aja lah ", "Ayam goreng tepung dibalur dengan saur telur asin ala uncle Cals😳"))
-        recipeData.add(RecipeModel("Salted Egg Chicken", "-Ayam 200gr -Telur Asin", "-masak aja lah ", "Ayam goreng tepung dibalur dengan saur telur asin ala uncle Cals😳"))
+        recipeData.add(RecipeModel("Salted Egg Chicken", "-Ayam 200gr -Telur Asin", "-masak aja lah ", "Ayam goreng tepung dibalur dengan saur telur asin ala uncle Cals😳", ""))
+        recipeData.add(RecipeModel("Salted Egg Chicken", "-Ayam 200gr -Telur Asin", "-masak aja lah ", "Ayam goreng tepung dibalur dengan saur telur asin ala uncle Cals😳", ""))
+        recipeData.add(RecipeModel("Salted Egg Chicken", "-Ayam 200gr -Telur Asin", "-masak aja lah ", "Ayam goreng tepung dibalur dengan saur telur asin ala uncle Cals😳", ""))
+        recipeData.add(RecipeModel("Salted Egg Chicken", "-Ayam 200gr -Telur Asin", "-masak aja lah ", "Ayam goreng tepung dibalur dengan saur telur asin ala uncle Cals😳", ""))
+        recipeData.add(RecipeModel("Salted Egg Chicken", "-Ayam 200gr -Telur Asin", "-masak aja lah ", "Ayam goreng tepung dibalur dengan saur telur asin ala uncle Cals😳", ""))
  }
 
 }

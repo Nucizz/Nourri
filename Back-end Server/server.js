@@ -4,6 +4,7 @@ const mysql = require("mysql");
 const dotenv = require("dotenv");
 const https = require("https");
 const fs = require("fs");
+const os = require('os');
 
 dotenv.config({ path: "./.env" });
 
@@ -13,11 +14,6 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/", router);
-
-const options = {
-  key: fs.readFileSync("server.key"),
-  cert: fs.readFileSync("server.cert"),
-};
 
 app.use((req, res, next) => {
   console.log(`Received ${req.method} request for ${req.url}`);
@@ -30,8 +26,8 @@ app.use((err, req, res, next) => {
 });
 
 
-https.createServer(options, app).listen(process.env.SERVER_PORT, () => {
-  console.log(`Nourri server running on port ${process.env.SERVER_PORT}`);
+app.listen(process.env.SERVER_PORT, () => {
+  console.log(`Nourri server running on http://${getLocalIPv4Address()}:${process.env.SERVER_PORT}`);
 });
 
 app.use((req, res, next) => {
@@ -124,15 +120,15 @@ router.post("/get-recipe", async (req, res) => {
       "- Title, contains food/recipe title.";
 
     const responseContent = await getChatGPTResponse(message_template);
-    console.log(`\nRecipe Requested:\n${responseContent}`);
-    res.json({ recipe: responseContent });
+    console.log(`\nRecipe Requested:\n${responseContent.title}`);
+    res.json(responseContent);
   } catch (e) {
     console.log(e);
     res.status(403).send("Forbidden Request");
   }
 });
 
-function getChatGPTResponse(message) {
+async function getChatGPTResponse(message) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
       model: "gpt-3.5-turbo",
@@ -168,7 +164,21 @@ function getChatGPTResponse(message) {
       res.on("end", () => {
         try {
           const response = JSON.parse(responseData);
-          resolve(response.choices[0].message.content);
+
+          // Extracting sections from the response
+          const raw = response.choices[0].message.content;
+          const title = extractSection(raw, "Title");
+          const ingredients = extractSection(raw, "Ingredients");
+          const instruction = extractSection(raw, "Instructions");
+          const summary = extractSection(raw, "Summary");
+
+          resolve({
+            title,
+            ingredients,
+            instruction,
+            summary,
+            raw
+          });
         } catch (error) {
           console.error("Error parsing ChatGPT API response:", error.message);
           reject(new Error("Error parsing ChatGPT API response"));
@@ -185,3 +195,39 @@ function getChatGPTResponse(message) {
   });
 }
 
+function extractSection(content, sectionTitle) {
+  const sectionStart = content.indexOf(`${sectionTitle}:`);
+
+  if (sectionStart !== -1) {
+    const nextSectionTitles = ["Title:", "Ingredients:", "Summary:", "Instructions:"];
+    let sectionEnd = content.length;
+
+    for (const nextTitle of nextSectionTitles) {
+      const nextTitleIndex = content.indexOf(nextTitle, sectionStart + sectionTitle.length);
+      if (nextTitleIndex !== -1 && nextTitleIndex < sectionEnd) {
+        sectionEnd = nextTitleIndex;
+      }
+    }
+
+    const sectionContent = content.substring(sectionStart + sectionTitle.length + 1, sectionEnd).trim();
+    return sectionContent;
+  } else {
+    return `Unable to extract ${sectionTitle}`;
+  }
+}
+
+function getLocalIPv4Address() {
+  const networkInterfaces = os.networkInterfaces();
+
+  for (const interfaceName of Object.keys(networkInterfaces)) {
+    const networkInterface = networkInterfaces[interfaceName];
+
+    for (const { address, family } of networkInterface) {
+      if (family === 'IPv4' && !address.startsWith('127.')) {
+        return address;
+      }
+    }
+  }
+
+  return 'Unable to determine local IPv4 address';
+}

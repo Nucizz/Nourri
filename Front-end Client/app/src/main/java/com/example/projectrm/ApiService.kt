@@ -1,14 +1,10 @@
+import com.example.projectrm.IngredientsModel
 import com.example.projectrm.RecipeModel
 import retrofit2.Call
-import retrofit2.http.GET
+import retrofit2.http.Body
+import retrofit2.http.POST
 
 interface ApiService {
-    @GET("api/data")
-    fun getData(): Call<List<RecipeModel>> // Replace YourDataModel with the model representing your data
-
-    companion object {
-        fun getData(): Call<List<RecipeModel>> {
-            TODO("Not yet implemented")
-        }
-    }
+    @POST("/get-recipe") // Replace with your API endpoint
+    fun postIngredients(@Body ingredients: List<IngredientsModel>): Call<RecipeModel>
 }

@@ -1,5 +1,6 @@
 package com.example.projectrm
 
+import ApiService
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
@@ -9,12 +10,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.PopupMenu
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -22,26 +25,27 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.*
+import okhttp3.OkHttpClient
+import org.json.JSONArray
+import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
-import android.util.Base64
-import kotlinx.coroutines.*
-import org.json.JSONArray
-import org.json.JSONObject
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
-import javax.net.ssl.HostnameVerifier
-import javax.net.ssl.HttpsURLConnection
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
+import java.util.concurrent.TimeUnit
+
 
 class AddIngredients : Fragment(), DeleteInterface {
 
+    private lateinit var loadingBar: ProgressBar
     private lateinit var addButton: FloatingActionButton
     private lateinit var generateButton: Button
     private lateinit var ingredientsAdapter: IngredientsAdapter
@@ -49,7 +53,7 @@ class AddIngredients : Fragment(), DeleteInterface {
     private var ingredientsData = ArrayList<IngredientsModel>()
     private val detectedItems = HashSet<String>()
 
-
+    private val localURL: String = "http://" + "192.168.1.8:3000"
 
     private val CAMERA_PERMISSION_CODE = 1001
     private val CAMERA_REQUEST_CODE = 1002
@@ -65,6 +69,7 @@ class AddIngredients : Fragment(), DeleteInterface {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        loadingBar = view.findViewById(R.id.loadingProgressBar)
         ingredientsRV = view.findViewById(R.id.ingredientsRV)
         ingredientsAdapter = IngredientsAdapter(ingredientsData, this)
         ingredientsRV.layoutManager = LinearLayoutManager(requireContext())
@@ -74,7 +79,7 @@ class AddIngredients : Fragment(), DeleteInterface {
 
         generateButton = view.findViewById(R.id.generateBtn)
         generateButton.setOnClickListener {
-
+            getGPTresponse()
         }
 
         addButton = view.findViewById(R.id.addButton)
@@ -212,6 +217,7 @@ class AddIngredients : Fragment(), DeleteInterface {
     private fun roboflow(base64EncodedImage: String) {
         GlobalScope.launch(Dispatchers.IO) {
             try {
+                loadingBar.visibility = View.VISIBLE
                 val API_KEY = "gjeimk0O8olVp9XNJqi9" // Your API Key
                 val MODEL_ENDPOINT = "food-ingredients-detection-nxe34/2" // Set model endpoint (Found in Dataset URL)
 
@@ -268,6 +274,7 @@ class AddIngredients : Fragment(), DeleteInterface {
                                             "Identification confidence is insufficient!",
                                             Toast.LENGTH_SHORT
                                         ).show()
+                                        loadingBar.visibility = View.GONE
                                     }
                                 }
 
@@ -280,13 +287,15 @@ class AddIngredients : Fragment(), DeleteInterface {
                                 "Couldn't identify ingredients!",
                                 Toast.LENGTH_SHORT
                             ).show()
+                            loadingBar.visibility = View.GONE
                         }
                     }
-
                 } catch (e: Exception) {
                     e.printStackTrace()
+                    loadingBar.visibility = View.GONE
                 } finally {
                     connection?.disconnect()
+                    loadingBar.visibility = View.GONE
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -296,8 +305,7 @@ class AddIngredients : Fragment(), DeleteInterface {
 
     private fun getItemInfo(detectedIngredient: String) {
         GlobalScope.launch(Dispatchers.IO) {
-            trustAllCertificates()
-            val localAPIURL = "https://172.20.10.2:3000/get-ingredient-info/$detectedIngredient"
+            val localAPIURL = "$localURL/get-ingredient-info/$detectedIngredient"
             val localAPIConnection = URL(localAPIURL).openConnection() as HttpURLConnection
 
             try {
@@ -333,8 +341,8 @@ class AddIngredients : Fragment(), DeleteInterface {
 
     private fun getAllItemInfo(callback: (List<IngredientsModel>) -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
-            trustAllCertificates()
-            val localAPIURL = "https://172.20.10.2:3000/get-ingredient/"
+            loadingBar.visibility = View.VISIBLE
+            val localAPIURL = "$localURL/get-ingredient/"
             val localAPIConnection = URL(localAPIURL).openConnection() as HttpURLConnection
 
             try {
@@ -365,38 +373,65 @@ class AddIngredients : Fragment(), DeleteInterface {
 
                 withContext(Dispatchers.Main) {
                     callback(ingredientList)
+                    loadingBar.visibility = View.GONE
                 }
 
             } finally {
                 localAPIConnection.disconnect()
+                loadingBar.visibility = View.GONE
             }
         }
     }
 
-    public fun trustAllCertificates() {
-        try {
-            val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
-                override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+    private fun getGPTresponse() {
+        loadingBar.visibility = View.VISIBLE
+        val retrofit = Retrofit.Builder()
+            .baseUrl(localURL) // Replace with your API base URL
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(
+                OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS) // Adjust the connect timeout as needed
+                    .readTimeout(30, TimeUnit.SECONDS)    // Adjust the read timeout as needed
+                    .writeTimeout(30, TimeUnit.SECONDS)   // Adjust the write timeout as needed
+                    .build()
+            )
+            .build()
+
+        val apiService = retrofit.create(ApiService::class.java)
+
+        val call = apiService.postIngredients(ingredientsData)
+
+        call.enqueue(object : Callback<RecipeModel> {
+            override fun onResponse(call: Call<RecipeModel>, response: Response<RecipeModel>) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    val intent = Intent(activity, RecipeDetailsActivity::class.java)
+                    loadingBar.visibility = View.GONE
+                    intent.putExtra("title", responseBody?.title)
+                    intent.putExtra("summary", responseBody?.summary)
+                    intent.putExtra("ingredients", responseBody?.ingredients)
+                    intent.putExtra("instruction", responseBody?.instruction)
+                    intent.putExtra("raw", responseBody?.raw)
+                    startActivity(intent)
+                } else {
+                    handleApiError(response)
+                    loadingBar.visibility = View.GONE
                 }
+            }
 
-                override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
-                }
+            override fun onFailure(call: Call<RecipeModel>, t: Throwable) {
+                Toast.makeText(requireContext(), "Something went wrong!", Toast.LENGTH_SHORT).show()
+                t.printStackTrace()
+                loadingBar.visibility = View.GONE
+            }
+        })
+    }
 
-                override fun getAcceptedIssuers(): Array<X509Certificate> {
-                    return arrayOf()
-                }
-            })
-
-            // Install the all-trusting trust manager
-            val sslContext = SSLContext.getInstance("SSL")
-            sslContext.init(null, trustAllCerts, SecureRandom())
-            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.socketFactory)
-
-            // Create an all-trusting host name verifier
-            HttpsURLConnection.setDefaultHostnameVerifier(HostnameVerifier { _, _ -> true })
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+    private fun handleApiError(response: Response<RecipeModel>) {
+        // Handle API error
+        val errorMessage = response.errorBody()?.string() ?: "Unknown error"
+        // Show error message to the user or log it
+        println("API Error: $errorMessage")
     }
 
 }

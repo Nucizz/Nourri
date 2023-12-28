@@ -1,20 +1,14 @@
 package com.example.projectrm
 
-import ApiService
 import android.os.Bundle
-import android.view.WindowInsetsAnimation
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.transition.TransitionManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import okhttp3.Response
-import retrofit2.Call
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : FragmentActivity() {
 
     private lateinit var bottomNav : BottomNavigationView
     private lateinit var mainConstraintLayout: ConstraintLayout
@@ -58,9 +52,15 @@ class MainActivity : AppCompatActivity() {
     }
     private fun setHorizontalBias(bias: Float) {
         val constraintSet = ConstraintSet()
-        constraintSet.clone(mainConstraintLayout)  // Replace with your actual ConstraintLayout reference
+        constraintSet.clone(mainConstraintLayout)
         constraintSet.setHorizontalBias(R.id.homeBottomNavbar, bias)
-        constraintSet.applyTo(mainConstraintLayout)  // Replace with your actual ConstraintLayout reference
+
+        // Apply transition with animation
+        val transition = androidx.transition.AutoTransition()
+        transition.duration = 300 // Set the duration of the animation in milliseconds
+        TransitionManager.beginDelayedTransition(mainConstraintLayout, transition)
+
+        constraintSet.applyTo(mainConstraintLayout)
     }
 
 }

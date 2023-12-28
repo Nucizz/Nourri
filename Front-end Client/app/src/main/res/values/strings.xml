@@ -25,4 +25,9 @@
     <string name="willi">William Ng\n
         as Front-End Developer
     </string>
+    <string name="back_button">Back Button</string>
+    <string name="recipe_title">Recipe Title</string>
+    <string name="ingredients">Ingredients</string>
+    <string name="instructions">Instructions</string>
+    <string name="generated_recipe">Generated Recipe</string>
 </resources>
