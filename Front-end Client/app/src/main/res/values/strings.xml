@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Nourri</string>
+    <string name="recipe">Recipes</string>
+    <string name="addIngredients">Add Ingredients</string>
+    <string name="title">Title</string>
+    <string name="summary">Summary</string>
+    <string name="generate">Generate Recipe</string>
+    <string name="about">About Us</string>
+    <string name="addIngredientsCcal">0 ccal</string>
+    <string name="aboutNourri">
+        Welcome to Nourri, where technology meets nutrition\! We\'re an AI-based app with a simple mission\: to help you make healthier choices in your meals.
+        Nourri, derived from the French word for \"to feed,\" embodies our commitment to nourishing your well-being.
+        \n\n
+        We\'ve harnessed the power of OpenAI to revolutionize your culinary journey.
+        Nourri is not just an app\; it\'s your kitchen companion, using OpenAI to generate personalized, nutritious recipes tailored to your preferences.
+        \n\n
+        Our three dedicated developers are the heart and soul behind the app.
+    </string>
+    <string name="thessa">Thessalonica Maria Luisse Rosaline\n
+        as AI Engineer
+    </string>
+    <string name="calvin">Calvin Anacia Suciawan\n
+        as Back-End Developer
+    </string>
+    <string name="willi">William Ng\n
+        as Front-End Developer
+    </string>
+    <string name="back_button">Back Button</string>
+    <string name="recipe_title">Recipe Title</string>
+    <string name="ingredients">Ingredients</string>
+    <string name="instructions">Instructions</string>
+    <string name="generated_recipe">Generated Recipe</string>
+</resources>
