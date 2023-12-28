@@ -61,11 +61,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:background="@drawable/custom_navbar"
                 android:backgroundTint="@color/green"
+                android:textColor="@color/white"
                 android:fontFamily="sans-serif-medium"
                 android:includeFontPadding="false"
                 android:text="@string/generate_recipe"
-                android:paddingBottom="100dp"
+                android:layout_marginBottom="100dp"
                 android:textSize="18sp"
                 android:visibility="gone" />
 

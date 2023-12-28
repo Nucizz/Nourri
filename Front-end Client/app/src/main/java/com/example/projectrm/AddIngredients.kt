@@ -217,9 +217,12 @@ class AddIngredients : Fragment(), DeleteInterface {
     private fun roboflow(base64EncodedImage: String) {
         GlobalScope.launch(Dispatchers.IO) {
             try {
-                loadingBar.visibility = View.VISIBLE
+                withContext(Dispatchers.Main) {
+                    loadingBar.visibility = View.VISIBLE
+                }
+
                 val API_KEY = "gjeimk0O8olVp9XNJqi9" // Your API Key
-                val MODEL_ENDPOINT = "food-ingredients-detection-nxe34/2" // Set model endpoint (Found in Dataset URL)
+                val MODEL_ENDPOINT = "food-ingredients-detection-nxe34/3" // Set model endpoint (Found in Dataset URL)
 
                 // Construct the URL
                 val uploadURL = "https://detect.roboflow.com/" + MODEL_ENDPOINT + "?api_key=" + API_KEY + "&name=YOUR_IMAGE.jpg" + "&confidence=0.3" + "&overlap=0.9"
@@ -248,7 +251,6 @@ class AddIngredients : Fragment(), DeleteInterface {
                     val response = StringBuilder()
                     var line: String?
                     while (reader.readLine().also { line = it } != null) {
-                        println(line)
                         response.append(line).append('\n')
                     }
                     reader.close()
@@ -256,7 +258,7 @@ class AddIngredients : Fragment(), DeleteInterface {
                     val roboflowJson = JSONObject(response.toString())
                     val predictionsArray = roboflowJson.getJSONArray("predictions")
                     val predictionsLen = predictionsArray.length()
-                    if(predictionsLen > 0) {
+                    if (predictionsLen > 0) {
                         for (i in 0 until predictionsLen) {
                             val prediction = predictionsArray.getJSONObject(i)
                             val predictedClass = prediction.getString("class")
@@ -268,7 +270,7 @@ class AddIngredients : Fragment(), DeleteInterface {
                                     println("Predicted Class $i: $predictedClass")
                                     getItemInfo(predictedClass)
                                 } else {
-                                    Handler(Looper.getMainLooper()).post {
+                                    withContext(Dispatchers.Main) {
                                         Toast.makeText(
                                             activity,
                                             "Identification confidence is insufficient!",
@@ -277,11 +279,10 @@ class AddIngredients : Fragment(), DeleteInterface {
                                         loadingBar.visibility = View.GONE
                                     }
                                 }
-
                             }
                         }
                     } else {
-                        Handler(Looper.getMainLooper()).post {
+                        withContext(Dispatchers.Main) {
                             Toast.makeText(
                                 activity,
                                 "Couldn't identify ingredients!",
@@ -292,10 +293,14 @@ class AddIngredients : Fragment(), DeleteInterface {
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    loadingBar.visibility = View.GONE
+                    withContext(Dispatchers.Main) {
+                        loadingBar.visibility = View.GONE
+                    }
                 } finally {
                     connection?.disconnect()
-                    loadingBar.visibility = View.GONE
+                    withContext(Dispatchers.Main) {
+                        loadingBar.visibility = View.GONE
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -331,6 +336,7 @@ class AddIngredients : Fragment(), DeleteInterface {
                     ingredientsData.add(IngredientsModel(ingredientName, ingredientCcal.toFloat()))
                     ingredientsAdapter.notifyDataSetChanged()
                     generateButton.visibility = View.VISIBLE
+                    loadingBar.visibility = View.GONE
                 }
 
             } finally {
@@ -339,9 +345,12 @@ class AddIngredients : Fragment(), DeleteInterface {
         }
     }
 
+
     private fun getAllItemInfo(callback: (List<IngredientsModel>) -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
-            loadingBar.visibility = View.VISIBLE
+            withContext(Dispatchers.Main) {
+                loadingBar.visibility = View.VISIBLE
+            }
             val localAPIURL = "$localURL/get-ingredient/"
             val localAPIConnection = URL(localAPIURL).openConnection() as HttpURLConnection
 
