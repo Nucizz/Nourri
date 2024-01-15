@@ -64,7 +64,7 @@ router.post("/add-ingredient", (req, res) => {
 
     db.query(q, values, (e, result) => {
       if (e) throw e;
-      res.send(result);
+      res.status(200).send(result);
     });
   } catch (e) {
     console.log(e);
@@ -94,7 +94,7 @@ router.get("/get-ingredient-info/:name", (req, res) => {
 
     db.query(q, values, (e, result) => {
       if (e) throw e;
-      res.send(result[0]);
+      res.status(200).send(result[0]);
     });
   } catch (e) {
     console.log(e);
@@ -121,7 +121,7 @@ router.post("/get-recipe", async (req, res) => {
       "- Title, contains food/recipe title.";
 
     const responseContent = await getChatGPTResponse(message_template);
-    res.json(responseContent);
+    res.status(200).json(responseContent);
     addRecipeHistory(responseContent);
   } catch (e) {
     console.log(e);
@@ -136,7 +136,7 @@ router.get("/get-all-recipe", async (req, res) => {
 
     db.query(q, values, (e, result) => {
       if (e) throw e;
-      res.send(result);
+      res.status(200).send(result);
     });
   } catch (e) {
     console.log(e);
@@ -155,6 +155,8 @@ async function addRecipeHistory(recipeContent) {
       if (e) throw e;
       console.log(`${recipeContent.title} is saved. [${result}]`)
     });
+
+    res.status(200)
   } catch (e) {
     console.log(e);
   }
@@ -211,6 +213,8 @@ async function getChatGPTResponse(message) {
             summary,
             raw
           });
+
+          res.status(200)
         } catch (error) {
           console.error("Error parsing ChatGPT API response:", error.message);
           reject(new Error("Error parsing ChatGPT API response"));
