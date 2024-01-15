@@ -131,7 +131,7 @@ router.post("/get-recipe", async (req, res) => {
 
 router.get("/get-all-recipe", async (req, res) => {
   try {
-    const q = "SELECT * FROM ??";
+    const q = "SELECT * FROM ?? ORDER BY id DESC";
     const values = [TABLE_RECIPE];
 
     db.query(q, values, (e, result) => {
