@@ -18,7 +18,11 @@ final class RecipeListViewModel: ObservableObject {
         }
     }
     
-    func fetchData() async {
+    func addData(recipe: Recipe) {
+        recipeList.append(recipe)
+    }
+    
+    func fetchData() async  {
         guard let domain = Bundle.main.infoDictionary?["API_URL"] as? String,
           let url = URL(string: "\(domain)/get-all-recipe") else {
             isLoading = false

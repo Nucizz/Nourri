@@ -8,6 +8,10 @@
 import SwiftUI
 
 struct RecipeView: View {
+    
+    @StateObject private var ingredientListViewModel = IngredientListViewModel()
+    @StateObject public var recipeListViewModel: RecipeListViewModel
+    
     var body: some View {
         ZStack(alignment: .leading) {
             
@@ -18,9 +22,39 @@ struct RecipeView: View {
                     .font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
                     .foregroundColor(Color.init(red: 0, green: 0.75, blue: 0))
                 
-                ScrollView(.vertical, showsIndicators: false) {
-                        
+                if ingredientListViewModel.isLoading || ingredientListViewModel.isGenerating {
                     
+                    LoadingView()
+                    
+                } else {
+                    
+                    VStack {
+                        
+                        List {
+                                
+                            ForEach(ingredientListViewModel.ingredientList.indices, id: \.self) { index in
+
+                                IngredientViewCell(ingredient: ingredientListViewModel.ingredientList[index])
+                                    .swipeActions {
+                                        Button(role: .destructive) {
+                                            ingredientListViewModel.removeIngredientByIndex(index: index)
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
+
+                            }
+                                                    
+                        }
+                        .listStyle(.plain)
+                        .clipShape(
+                            .rect(
+                                topLeadingRadius: 15,
+                                topTrailingRadius: 15
+                            )
+                        )
+                        
+                    }
                     
                 }
                             
@@ -28,7 +62,7 @@ struct RecipeView: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 15)
             
-            FloatingActionButton()
+            FloatingActionButton(ingredientListViewModelReference: ingredientListViewModel, recipeListViewModel: recipeListViewModel)
             
         }
         .background(Color.gray.opacity(0.15))
@@ -37,5 +71,5 @@ struct RecipeView: View {
 }
 
 #Preview {
-    RecipeView()
+    RecipeView(recipeListViewModel: RecipeListViewModel())
 }

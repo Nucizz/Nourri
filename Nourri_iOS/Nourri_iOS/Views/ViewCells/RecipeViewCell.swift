@@ -35,3 +35,7 @@ struct RecipeViewCell: View {
     
     }
 }
+
+#Preview {
+    RecipeViewCell(recipe: Recipe(id: 1, title: "Cookie", ingredients: "Dough", instructions: "Bake", summary: "Yummy but Unhealthy", raw: "Raw contents here!"))
+}

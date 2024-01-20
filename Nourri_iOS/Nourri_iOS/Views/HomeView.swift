@@ -9,7 +9,7 @@ import SwiftUI
 
 struct HomeView: View {
     
-    @StateObject private var recipeListViewModel = RecipeListViewModel()
+    @StateObject public var recipeListViewModel: RecipeListViewModel
     
     var body: some View {
         
@@ -17,10 +17,16 @@ struct HomeView: View {
             
             VStack(alignment: .leading) {
                 
-                Text(CUIKit.getGreetings())
-                    .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
-                    .font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
-                    .foregroundColor(Color.init(red: 0, green: 0.75, blue: 0))
+                HStack(alignment: .center) {
+                    
+                    Text(CUIKit.getGreetings())
+                        .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
+                        .font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
+                        .foregroundColor(Color.init(red: 0, green: 0.75, blue: 0))
+                    
+                    Spacer()
+                    
+                }
                 
                 if recipeListViewModel.isLoading {
                     
@@ -55,6 +61,6 @@ struct HomeView: View {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView()
+        HomeView(recipeListViewModel: RecipeListViewModel())
     }
 }

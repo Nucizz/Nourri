@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		121BEDB12B53025C00CAF7EE /* RecipeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121BEDB02B53025C00CAF7EE /* RecipeDetailView.swift */; };
 		121BEDB32B5310F500CAF7EE /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121BEDB22B5310F500CAF7EE /* LoadingView.swift */; };
+		123551E62B5934B100400521 /* IngredientListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123551E52B5934B100400521 /* IngredientListViewModel.swift */; };
+		123551E82B59353000400521 /* Ingredient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123551E72B59353000400521 /* Ingredient.swift */; };
+		123551EA2B593B7100400521 /* IngredientViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123551E92B593B7100400521 /* IngredientViewCell.swift */; };
+		123551EC2B59405300400521 /* IngredientListSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123551EB2B59405300400521 /* IngredientListSheetView.swift */; };
 		123959642B4BD96900B48AF3 /* Nourri_iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123959632B4BD96900B48AF3 /* Nourri_iOSApp.swift */; };
 		123959662B4BD96900B48AF3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123959652B4BD96900B48AF3 /* ContentView.swift */; };
 		123959682B4BD96B00B48AF3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 123959672B4BD96B00B48AF3 /* Assets.xcassets */; };
@@ -46,6 +50,10 @@
 /* Begin PBXFileReference section */
 		121BEDB02B53025C00CAF7EE /* RecipeDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeDetailView.swift; sourceTree = "<group>"; };
 		121BEDB22B5310F500CAF7EE /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		123551E52B5934B100400521 /* IngredientListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientListViewModel.swift; sourceTree = "<group>"; };
+		123551E72B59353000400521 /* Ingredient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ingredient.swift; sourceTree = "<group>"; };
+		123551E92B593B7100400521 /* IngredientViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientViewCell.swift; sourceTree = "<group>"; };
+		123551EB2B59405300400521 /* IngredientListSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientListSheetView.swift; sourceTree = "<group>"; };
 		123959602B4BD96900B48AF3 /* Nourri_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nourri_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		123959632B4BD96900B48AF3 /* Nourri_iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nourri_iOSApp.swift; sourceTree = "<group>"; };
 		123959652B4BD96900B48AF3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -162,6 +170,7 @@
 				123959922B4BDAB500B48AF3 /* AboutView.swift */,
 				121BEDB02B53025C00CAF7EE /* RecipeDetailView.swift */,
 				121BEDB22B5310F500CAF7EE /* LoadingView.swift */,
+				123551EB2B59405300400521 /* IngredientListSheetView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -179,6 +188,7 @@
 			isa = PBXGroup;
 			children = (
 				12FB60782B52491E002639E8 /* Recipe.swift */,
+				123551E72B59353000400521 /* Ingredient.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -187,6 +197,7 @@
 			isa = PBXGroup;
 			children = (
 				12FB607B2B524A3F002639E8 /* RecipeListViewModel.swift */,
+				123551E52B5934B100400521 /* IngredientListViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -195,6 +206,7 @@
 			isa = PBXGroup;
 			children = (
 				12FB60842B52F1B4002639E8 /* RecipeViewCell.swift */,
+				123551E92B593B7100400521 /* IngredientViewCell.swift */,
 			);
 			path = ViewCells;
 			sourceTree = "<group>";
@@ -330,7 +342,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				12FB60852B52F1B4002639E8 /* RecipeViewCell.swift in Sources */,
+				123551EC2B59405300400521 /* IngredientListSheetView.swift in Sources */,
 				1239598F2B4BDA3900B48AF3 /* HomeView.swift in Sources */,
+				123551EA2B593B7100400521 /* IngredientViewCell.swift in Sources */,
+				123551E82B59353000400521 /* Ingredient.swift in Sources */,
+				123551E62B5934B100400521 /* IngredientListViewModel.swift in Sources */,
 				123959662B4BD96900B48AF3 /* ContentView.swift in Sources */,
 				12FB60792B52491E002639E8 /* Recipe.swift in Sources */,
 				123959912B4BDAA900B48AF3 /* RecipeView.swift in Sources */,
@@ -381,7 +397,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				API_URL = "http://192.168.1.231:3000";
+				API_URL = "http://10.20.141.221:3000";
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -445,7 +461,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				API_URL = "http://192.168.1.231:3000";
+				API_URL = "http://10.20.141.221:3000";
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;

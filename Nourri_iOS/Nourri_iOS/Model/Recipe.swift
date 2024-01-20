@@ -8,7 +8,7 @@
 import Foundation
 
 struct Recipe: Identifiable, Codable {
-    let id: Int
+    let id: Int?
     let title: String
     let ingredients: String
     let instructions: String

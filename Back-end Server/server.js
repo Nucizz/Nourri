@@ -156,7 +156,6 @@ async function addRecipeHistory(recipeContent) {
       console.log(`${recipeContent.title} is saved. [${result}]`)
     });
 
-    res.status(200)
   } catch (e) {
     console.log(e);
   }
@@ -203,18 +202,18 @@ async function getChatGPTResponse(message) {
           const raw = response.choices[0].message.content;
           const title = extractSection(raw, "Title");
           const ingredients = extractSection(raw, "Ingredients");
-          const instruction = extractSection(raw, "Instructions");
+          const instructions = extractSection(raw, "Instructions");
+          const instruction = instructions;
           const summary = extractSection(raw, "Summary");
 
           resolve({
             title,
             ingredients,
-            instruction,
+            instructions,
+            instruction, // Android Needs
             summary,
             raw
           });
-
-          res.status(200)
         } catch (error) {
           console.error("Error parsing ChatGPT API response:", error.message);
           reject(new Error("Error parsing ChatGPT API response"));

@@ -8,13 +8,15 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject var recipeListViewModel = RecipeListViewModel()
+    
     var body: some View {
         TabView {
-            HomeView()
+            HomeView(recipeListViewModel: recipeListViewModel)
                 .tabItem {
                     Label("Home", systemImage: "house.fill")
                 }
-            RecipeView()
+            RecipeView(recipeListViewModel: recipeListViewModel)
                 .tabItem {
                     Label("Recipe", systemImage: "book.pages.fill")
                 }
