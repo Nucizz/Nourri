@@ -11,61 +11,70 @@ struct RecipeView: View {
     
     @StateObject private var ingredientListViewModel = IngredientListViewModel()
     @StateObject public var recipeListViewModel: RecipeListViewModel
+    @State private var path = NavigationPath()
     
     var body: some View {
-        ZStack(alignment: .leading) {
+        NavigationStack(path: $path) {
             
-            VStack(alignment: .leading) {
+            ZStack(alignment: .leading) {
                 
-                Text("New Recipe")
-                    .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
-                    .font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
-                    .foregroundColor(Color.init(red: 0, green: 0.75, blue: 0))
-                
-                if ingredientListViewModel.isLoading || ingredientListViewModel.isGenerating {
+                VStack(alignment: .leading) {
                     
-                    LoadingView()
+                    Text("New Recipe")
+                        .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
+                        .font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
+                        .foregroundColor(Color.init(red: 0, green: 0.75, blue: 0))
                     
-                } else {
-                    
-                    VStack {
+                    if ingredientListViewModel.isGenerating || ingredientListViewModel.isLoading {
                         
-                        List {
-                                
-                            ForEach(ingredientListViewModel.ingredientList.indices, id: \.self) { index in
+                        LoadingView()
+                        
+                    } else {
+                        
+                        VStack {
+                            
+                            List {
+                                    
+                                ForEach(ingredientListViewModel.ingredientList.indices, id: \.self) { index in
 
-                                IngredientViewCell(ingredient: ingredientListViewModel.ingredientList[index])
-                                    .swipeActions {
-                                        Button(role: .destructive) {
-                                            ingredientListViewModel.removeIngredientByIndex(index: index)
-                                        } label: {
-                                            Label("Delete", systemImage: "trash")
+                                    IngredientViewCell(ingredient: ingredientListViewModel.ingredientList[index])
+                                        .swipeActions {
+                                            Button(role: .destructive) {
+                                                ingredientListViewModel.removeIngredientByIndex(index: index)
+                                            } label: {
+                                                Label("Delete", systemImage: "trash")
+                                            }
                                         }
-                                    }
 
+                                }
+                                                        
                             }
-                                                    
-                        }
-                        .listStyle(.plain)
-                        .clipShape(
-                            .rect(
-                                topLeadingRadius: 15,
-                                topTrailingRadius: 15
+                            .listStyle(.plain)
+                            .clipShape(
+                                .rect(
+                                    topLeadingRadius: 15,
+                                    topTrailingRadius: 15
+                                )
                             )
-                        )
+                            
+                        }
                         
                     }
-                    
+                                
                 }
-                            
+                .padding(.horizontal, 20)
+                .padding(.vertical, 15)
+                
+                FloatingActionButton(ingredientListViewModelReference: ingredientListViewModel, recipeListViewModel: recipeListViewModel, navigationPath: $path)
+                
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 15)
-            
-            FloatingActionButton(ingredientListViewModelReference: ingredientListViewModel, recipeListViewModel: recipeListViewModel)
+            .background(Color.gray.opacity(0.15))
+            .navigationDestination(for: String.self) { view in
+                if view == "NewRecipe" {
+                    RecipeDetailView(recipe: recipeListViewModel.recipeList.first)
+                }}
             
         }
-        .background(Color.gray.opacity(0.15))
             
     }
 }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		12046C6C2B5BE99E00A7CC9C /* RoboflowYolo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12046C6B2B5BE99D00A7CC9C /* RoboflowYolo.swift */; };
 		121BEDB12B53025C00CAF7EE /* RecipeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121BEDB02B53025C00CAF7EE /* RecipeDetailView.swift */; };
 		121BEDB32B5310F500CAF7EE /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121BEDB22B5310F500CAF7EE /* LoadingView.swift */; };
 		123551E62B5934B100400521 /* IngredientListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123551E52B5934B100400521 /* IngredientListViewModel.swift */; };
@@ -48,6 +49,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		12046C6B2B5BE99D00A7CC9C /* RoboflowYolo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoboflowYolo.swift; sourceTree = "<group>"; };
 		121BEDB02B53025C00CAF7EE /* RecipeDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeDetailView.swift; sourceTree = "<group>"; };
 		121BEDB22B5310F500CAF7EE /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		123551E52B5934B100400521 /* IngredientListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientListViewModel.swift; sourceTree = "<group>"; };
@@ -180,6 +182,7 @@
 			children = (
 				123959952B4BE20900B48AF3 /* CUIKit.swift */,
 				12FB60862B52F706002639E8 /* FloatingActionButton.swift */,
+				12046C6B2B5BE99D00A7CC9C /* RoboflowYolo.swift */,
 			);
 			path = CustomKit;
 			sourceTree = "<group>";
@@ -353,6 +356,7 @@
 				121BEDB32B5310F500CAF7EE /* LoadingView.swift in Sources */,
 				12FB607C2B524A3F002639E8 /* RecipeListViewModel.swift in Sources */,
 				123959642B4BD96900B48AF3 /* Nourri_iOSApp.swift in Sources */,
+				12046C6C2B5BE99E00A7CC9C /* RoboflowYolo.swift in Sources */,
 				121BEDB12B53025C00CAF7EE /* RecipeDetailView.swift in Sources */,
 				123959962B4BE20900B48AF3 /* CUIKit.swift in Sources */,
 				12FB60872B52F706002639E8 /* FloatingActionButton.swift in Sources */,
@@ -396,8 +400,10 @@
 		123959822B4BD96B00B48AF3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				AI_API_KEY = gjeimk0O8olVp9XNJqi9;
+				AI_MODEL_ENDPOINT = "food-ingredients-detection-nxe34/3";
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				API_URL = "http://10.20.141.221:3000";
+				API_URL = "http://192.168.1.143:3000";
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -460,8 +466,10 @@
 		123959832B4BD96B00B48AF3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				AI_API_KEY = gjeimk0O8olVp9XNJqi9;
+				AI_MODEL_ENDPOINT = "food-ingredients-detection-nxe34/3";
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				API_URL = "http://10.20.141.221:3000";
+				API_URL = "http://192.168.1.143:3000";
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;

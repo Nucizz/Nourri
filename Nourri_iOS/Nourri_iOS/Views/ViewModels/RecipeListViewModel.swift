@@ -19,13 +19,14 @@ final class RecipeListViewModel: ObservableObject {
     }
     
     func addData(recipe: Recipe) {
-        recipeList.append(recipe)
+        recipeList.insert(recipe, at: 0)
     }
     
     func fetchData() async  {
         guard let domain = Bundle.main.infoDictionary?["API_URL"] as? String,
           let url = URL(string: "\(domain)/get-all-recipe") else {
-            isLoading = false
+            DispatchQueue.main.async {
+                self.isLoading = false            }
             return
         }
 

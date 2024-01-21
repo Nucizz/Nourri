@@ -11,7 +11,7 @@ final class IngredientListViewModel: ObservableObject {
     
     @Published var ingredientList: [Ingredient] = []
     @Published var selectableIngredientList: [Ingredient] = []
-    @Published var isLoading: Bool = true
+    @Published var isLoading: Bool = false
     @Published var isGenerating: Bool = false
     
     init() {
@@ -21,6 +21,10 @@ final class IngredientListViewModel: ObservableObject {
     }
     
     func fetchSelectableData() async  {
+        DispatchQueue.main.async {
+            self.isLoading = true
+        }
+        
         guard let domain = Bundle.main.infoDictionary?["API_URL"] as? String,
           let url = URL(string: "\(domain)/get-ingredient") else {
             DispatchQueue.main.async {
@@ -54,6 +58,10 @@ final class IngredientListViewModel: ObservableObject {
     }
     
     func addIngredientByName(name: String) async {
+        DispatchQueue.main.async {
+            self.isLoading = true
+        }
+        
         guard let domain = Bundle.main.infoDictionary?["API_URL"] as? String,
           let url = URL(string: "\(domain)/get-ingredient-info/\(name)") else {
             DispatchQueue.main.async {

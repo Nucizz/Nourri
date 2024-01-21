@@ -27,6 +27,7 @@ struct RecipeViewCell: View {
                     .font(.body)
                     .foregroundColor(Color.secondary)
                     .lineLimit(2)
+                    .multilineTextAlignment(.leading)
                     
             }
             
