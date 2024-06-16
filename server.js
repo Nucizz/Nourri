@@ -30,7 +30,7 @@ app.listen(process.env.SERVER_PORT, () => {
 });
 
 app.use((req, res, next) => {
-  res.status(404).send("Not Found");
+  res.status(404).send("<div style='width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;'><h1>NOT FOUND!</h1> <h3>Nourri backend server by Nucizz</h3></div>");
 });
 
 // Firebase
