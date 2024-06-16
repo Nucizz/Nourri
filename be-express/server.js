@@ -49,24 +49,27 @@ const db = getFirestore(fb);
 const ingredientDB = collection(db, "ingredient");
 const recipeDB = collection(db, "recipe");
 
-router.post("/add-ingredient", async (req, res) => {
-  try {
-    const data = req.body; 
-    const result = await addDoc(ingredientDB, {
-      name: data.name,
-      ccal: data.ccal
-    })
-    res.status(200).send(result);
-  } catch (e) {
-    console.log(e);
-    res.status(403).send("Forbidden Request");
-  }
-});
+// router.post("/add-ingredient", async (req, res) => {
+//   try {
+//     const data = req.body; 
+//     const result = await addDoc(ingredientDB, {
+//       name: data.name,
+//       ccal: data.ccal
+//     })
+//     res.status(200).send(result);
+//   } catch (e) {
+//     console.log(e);
+//     res.status(403).send("Forbidden Request");
+//   }
+// });
 
 router.get("/get-ingredient", async (req, res) => {
   try {
     const querySnapshot = await getDocs(ingredientDB)
-    const result = querySnapshot.docs.map(doc => doc.data());
+    const result = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
     res.status(200).send(result);
   } catch (e) {
     console.log(e);
@@ -81,7 +84,11 @@ router.get("/get-ingredient-info/:name", async (req, res) => {
     if (querySnapshot.empty) {
       res.status(404).send("Ingredient not found");
     } else {
-      const result = querySnapshot.docs[0].data();
+      const doc = querySnapshot[0];
+      const result = {
+        id: doc.id,
+        ...doc.data()
+      };
       res.status(200).send(result);
     }
   } catch (e) {
@@ -120,7 +127,10 @@ router.post("/get-recipe", async (req, res) => {
 router.get("/get-all-recipe", async (req, res) => {
   try {
     const querySnapshot = await getDocs(recipeDB);
-    const results = querySnapshot.docs.map(doc => doc.data());
+    const results = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
     res.status(200).send(results);
   } catch (e) {
     console.log(e);
