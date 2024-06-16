@@ -190,23 +190,28 @@ async function getChatGPTResponse(message) {
       res.on("end", () => {
         try {
           const response = JSON.parse(responseData);
+          console.log("ChatGPT API response:", response);
 
-          // Extracting sections from the response
-          const raw = response.choices[0].message.content;
-          const title = extractSection(raw, "Title");
-          const ingredients = extractSection(raw, "Ingredients");
-          const instructions = extractSection(raw, "Instructions");
-          const instruction = instructions;
-          const summary = extractSection(raw, "Summary");
+          if (response.choices && response.choices.length > 0) {
+            const raw = response.choices[0].message.content;
+            const title = extractSection(raw, "Title");
+            const ingredients = extractSection(raw, "Ingredients");
+            const instructions = extractSection(raw, "Instructions");
+            const instruction = instructions; // For Android needs
+            const summary = extractSection(raw, "Summary");
 
-          resolve({
-            title,
-            ingredients,
-            instructions,
-            instruction, // Android Needs
-            summary,
-            raw
-          });
+            resolve({
+              title,
+              ingredients,
+              instructions,
+              instruction,
+              summary,
+              raw
+            });
+          } else {
+            console.error("Unexpected ChatGPT API response format:", response);
+            reject(new Error("Unexpected ChatGPT API response format"));
+          }
         } catch (error) {
           console.error("Error parsing ChatGPT API response:", error.message);
           reject(new Error("Error parsing ChatGPT API response"));
