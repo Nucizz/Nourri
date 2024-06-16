@@ -1,11 +1,9 @@
+import { collection, doc, setDoc, getDocs, addDoc, query, where } from "firebase/firestore"; 
 const express = require("express");
 const router = express.Router();
-const mysql = require("mysql");
 const dotenv = require("dotenv");
 const https = require("https");
-const fs = require("fs");
 const os = require('os');
-
 dotenv.config({ path: "./.env" });
 
 //APP
@@ -34,68 +32,50 @@ app.use((req, res, next) => {
   res.status(404).send("Not Found");
 });
 
-//DB
-const db = mysql.createConnection({
-  host: process.env.DATABASE_HOST,
-  user: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE_NAME,
-  port: process.env.DATABASE_PORT,
-});
-
-db.connect((e) => {
-  e
-    ? console.log(e)
-    : console.log(
-      `MySQL is now connected on port ${process.env.DATABASE_PORT}`
-    );
-});
+// Firebase
+const firebaseConfig = {
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID
+};
+const fb = initializeApp(firebaseConfig);
+const db = getFirestore(fb);
 
 // Router Functions and Queries
-const TABLE_INGREDIENT = "ingredient";
-const TABLE_RECIPE = "recipe";
+const ingredientDB = collection(db, "ingredient");
+const recipeDB = collection(db, "recipe");
 
-router.post("/add-ingredient", (req, res) => {
+router.post("/add-ingredient", async (req, res) => {
   try {
-    const data = req.body;
-    if (!(data.name && data.ccal)) throw new Error("Data is NULL");
-    const q = "INSERT INTO ?? (name, ccal) VALUES (?, ?)";
-    const values = [TABLE_INGREDIENT, data.name, data.ccal];
-
-    db.query(q, values, (e, result) => {
-      if (e) throw e;
-      res.status(200).send(result);
-    });
+    const result = await addDoc(ingredientDB, {
+      name: data.name,
+      ccal: data.ccal
+    })
+    res.status(200).send(result);
   } catch (e) {
     console.log(e);
     res.status(403).send("Forbidden Request");
   }
 });
 
-router.get("/get-ingredient", (req, res) => {
+router.get("/get-ingredient", async (req, res) => {
   try {
-    const q = "SELECT * FROM ??";
-    const values = [TABLE_INGREDIENT];
-
-    db.query(q, values, (e, result) => {
-      if (e) throw e;
-      res.send(result);
-    });
+    const result = await getDocs(ingredientDB)
+    res.status(200).send(result);
   } catch (e) {
     console.log(e);
     res.status(403).send("Forbidden Request");
   }
 });
 
-router.get("/get-ingredient-info/:name", (req, res) => {
+router.get("/get-ingredient-info/:name", async (req, res) => {
   try {
-    const q = "SELECT * FROM ?? WHERE name = ?";
-    const values = [TABLE_INGREDIENT, req.params.name];
-
-    db.query(q, values, (e, result) => {
-      if (e) throw e;
-      res.status(200).send(result[0]);
-    });
+    const q = query(ingredientDB, where("name", "==", req.params.name));
+    const result = await getDocs(q)
+    res.status(200).send(result[0]);
   } catch (e) {
     console.log(e);
     res.status(403).send("Forbidden Request");
@@ -131,13 +111,8 @@ router.post("/get-recipe", async (req, res) => {
 
 router.get("/get-all-recipe", async (req, res) => {
   try {
-    const q = "SELECT * FROM ?? ORDER BY id DESC";
-    const values = [TABLE_RECIPE];
-
-    db.query(q, values, (e, result) => {
-      if (e) throw e;
-      res.status(200).send(result);
-    });
+    const result = await getDocs(recipeDB)
+    res.status(200).send(result);
   } catch (e) {
     console.log(e);
     res.status(403).send("Forbidden Request");
@@ -147,15 +122,14 @@ router.get("/get-all-recipe", async (req, res) => {
 // Non-Router Functions
 async function addRecipeHistory(recipeContent) {
   try {
-    if (!recipeContent) throw new Error("Data is NULL");
-    const q = "INSERT INTO ?? (title, ingredients, instructions, summary, raw) VALUES (?, ?, ?, ?, ?)";
-    const values = [TABLE_RECIPE, recipeContent.title, recipeContent.ingredients, recipeContent.instruction, recipeContent.summary, recipeContent.raw];
-
-    db.query(q, values, (e, result) => {
-      if (e) throw e;
-      console.log(`${recipeContent.title} is saved. [${result}]`)
-    });
-
+    const result = await addDoc(ingredientDB, {
+      title: recipeContent.title,
+      ingredients: recipeContent.ingredients,
+      instructions: recipeContent.instruction,
+      summary: recipeContent.summary,
+      raw: recipeContent.raw
+    })
+    console.log("Added new recipe: " + result)
   } catch (e) {
     console.log(e);
   }
