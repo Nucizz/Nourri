@@ -1,4 +1,5 @@
-import { collection, doc, setDoc, getDocs, addDoc, query, where } from "firebase/firestore"; 
+const { initializeApp } = require("firebase/app");
+const { getFirestore, collection, getDocs, addDoc, query, where } = require("firebase/firestore");
 const express = require("express");
 const router = express.Router();
 const dotenv = require("dotenv");
@@ -50,6 +51,7 @@ const recipeDB = collection(db, "recipe");
 
 router.post("/add-ingredient", async (req, res) => {
   try {
+    const data = req.body; 
     const result = await addDoc(ingredientDB, {
       name: data.name,
       ccal: data.ccal
@@ -63,7 +65,8 @@ router.post("/add-ingredient", async (req, res) => {
 
 router.get("/get-ingredient", async (req, res) => {
   try {
-    const result = await getDocs(ingredientDB)
+    const querySnapshot = await getDocs(ingredientDB)
+    const result = querySnapshot.docs.map(doc => doc.data());
     res.status(200).send(result);
   } catch (e) {
     console.log(e);
@@ -74,8 +77,13 @@ router.get("/get-ingredient", async (req, res) => {
 router.get("/get-ingredient-info/:name", async (req, res) => {
   try {
     const q = query(ingredientDB, where("name", "==", req.params.name));
-    const result = await getDocs(q)
-    res.status(200).send(result[0]);
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+      res.status(404).send("Ingredient not found");
+    } else {
+      const result = querySnapshot.docs[0].data();
+      res.status(200).send(result);
+    }
   } catch (e) {
     console.log(e);
     res.status(403).send("Forbidden Request");
@@ -102,7 +110,7 @@ router.post("/get-recipe", async (req, res) => {
 
     const responseContent = await getChatGPTResponse(message_template);
     res.status(200).json(responseContent);
-    addRecipeHistory(responseContent);
+    await addRecipeHistory(responseContent);
   } catch (e) {
     console.log(e);
     res.status(403).send("Forbidden Request");
@@ -111,8 +119,9 @@ router.post("/get-recipe", async (req, res) => {
 
 router.get("/get-all-recipe", async (req, res) => {
   try {
-    const result = await getDocs(recipeDB)
-    res.status(200).send(result);
+    const querySnapshot = await getDocs(recipeDB);
+    const results = querySnapshot.docs.map(doc => doc.data());
+    res.status(200).send(results);
   } catch (e) {
     console.log(e);
     res.status(403).send("Forbidden Request");
@@ -125,7 +134,7 @@ async function addRecipeHistory(recipeContent) {
     const result = await addDoc(ingredientDB, {
       title: recipeContent.title,
       ingredients: recipeContent.ingredients,
-      instructions: recipeContent.instruction,
+      instructions: recipeContent.instructions,
       summary: recipeContent.summary,
       raw: recipeContent.raw
     })
