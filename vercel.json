@@ -3,11 +3,5 @@
     "rewrites": [{ 
         "source": "/(.*)", 
         "destination": "/"
-    }],
-    "env": {
-        "BRANCH": "vercel"
-    },
-    "scripts": {
-        "vercel-deploy": "if [ \"$BRANCH\" != \"vercel\" ]; then echo \"Cannot deploy from $BRANCH branch\"; exit 1; fi"
-    }
+    }]
 }
