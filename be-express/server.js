@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error('Global Error Handler:', err);
+  console.log('Global Error Handler:', err);
   res.status(500).send('Internal Server Error');
 });
 
@@ -159,7 +159,7 @@ async function addRecipeHistory(recipeContent) {
 }
 
 async function getChatGPTResponse(message) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, resolve) => {
     const data = JSON.stringify({
       model: "gpt-3.5-turbo",
       messages: [
@@ -213,19 +213,19 @@ async function getChatGPTResponse(message) {
               raw
             });
           } else {
-            console.error("Unexpected ChatGPT API response format:", response);
-            reject(null);
+            console.log("Unexpected ChatGPT API response format:", response);
+            resolve(null);
           }
         } catch (error) {
-          console.error("Error parsing ChatGPT API response:", error.message);
-          reject(null);
+          console.log("Error parsing ChatGPT API response:", error.message);
+          resolve(null);
         }
       });
     });
 
     req.on("error", (error) => {
       console.log((`Error calling ChatGPT API: ${error.message}`))
-      reject(null);
+      resolve(null);
     });
 
     req.write(data);
@@ -234,7 +234,7 @@ async function getChatGPTResponse(message) {
 }
 
 async function getGroqAIResponse(message) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, resolve) => {
     const groq = new Groq({ apiKey: process.env.GROQ_KEY });
 
     const response = groq.chat.completions.create({
@@ -261,8 +261,8 @@ async function getGroqAIResponse(message) {
         raw
       });
     } else {
-      console.error("Unexpected GroqAI API response format:", response);
-      reject(null);
+      console.log("Unexpected GroqAI API response format:", response);
+      resolve(null);
     }
   });
 }
