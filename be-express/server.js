@@ -66,10 +66,13 @@ const recipeDB = collection(db, "recipe");
 router.get("/get-ingredient", async (req, res) => {
   try {
     const querySnapshot = await getDocs(ingredientDB)
-    const result = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+    const result = querySnapshot.docs.map(doc => {
+      let data = doc.data();
+      return {
+        id: data.id,
+        ...data
+      };
+    });
     res.status(200).send(result);
   } catch (e) {
     console.log(e);
@@ -84,10 +87,10 @@ router.get("/get-ingredient-info/:name", async (req, res) => {
     if (querySnapshot.empty) {
       res.status(404).send("Ingredient not found");
     } else {
-      const doc = querySnapshot[0];
+      const data = querySnapshot[0].data();
       const result = {
-        id: doc.id,
-        ...doc.data()
+        id: data.id,
+        ...data
       };
       res.status(200).send(result);
     }
@@ -127,10 +130,13 @@ router.post("/get-recipe", async (req, res) => {
 router.get("/get-all-recipe", async (req, res) => {
   try {
     const querySnapshot = await getDocs(recipeDB);
-    const results = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+    const results = querySnapshot.docs.map(doc => {
+      let data = doc.data();
+      return {
+        id: data.id,
+        ...data
+      };
+    });
     res.status(200).send(results);
   } catch (e) {
     console.log(e);
