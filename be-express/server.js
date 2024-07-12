@@ -67,7 +67,7 @@ router.get("/get-ingredient", async (req, res) => {
   try {
     const querySnapshot = await getDocs(ingredientDB)
     const result = querySnapshot.docs.map(doc => ({
-      id: doc.ref,
+      id: doc.id,
       ...doc.data()
     }));
     res.status(200).send(result);
@@ -86,7 +86,7 @@ router.get("/get-ingredient-info/:name", async (req, res) => {
     } else {
       const doc = querySnapshot[0];
       const result = {
-        id: doc.ref,
+        id: doc.id,
         ...doc.data()
       };
       res.status(200).send(result);
@@ -128,7 +128,7 @@ router.get("/get-all-recipe", async (req, res) => {
   try {
     const querySnapshot = await getDocs(recipeDB);
     const results = querySnapshot.docs.map(doc => ({
-      id: doc.ref,
+      id: doc.id,
       ...doc.data()
     }));
     res.status(200).send(results);
