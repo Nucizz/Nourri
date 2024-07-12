@@ -262,7 +262,7 @@ async function getGroqAIResponse(message) {
       });
     } else {
       console.log("Unexpected GroqAI API response format:", response);
-      resolve(null);
+      reject(null);
     }
   });
 }
