@@ -1,5 +1,6 @@
 const { initializeApp } = require("firebase/app");
 const { getFirestore, collection, getDocs, addDoc, query, where } = require("firebase/firestore");
+const { Groq } = require("groq-sdk")
 const express = require("express");
 const router = express.Router();
 const dotenv = require("dotenv");
@@ -25,8 +26,8 @@ app.use((err, req, res, next) => {
 });
 
 
-app.listen(process.env.SERVER_PORT, () => {
-  console.log(`Nourri server running on http://${getLocalIPv4Address()}:${process.env.SERVER_PORT}`);
+app.listen(3000, () => {
+  console.log(`Nourri server running on http://${getLocalIPv4Address()}:${3000}`);
 });
 
 app.use((req, res, next) => {
@@ -66,13 +67,10 @@ const recipeDB = collection(db, "recipe");
 router.get("/get-ingredient", async (req, res) => {
   try {
     const querySnapshot = await getDocs(ingredientDB)
-    const result = querySnapshot.docs.map(doc => {
-      let data = doc.data();
-      return {
-        id: data.id,
-        ...data
-      };
-    });
+    const result = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
     res.status(200).send(result);
   } catch (e) {
     console.log(e);
@@ -84,13 +82,13 @@ router.get("/get-ingredient-info/:name", async (req, res) => {
   try {
     const q = query(ingredientDB, where("name", "==", req.params.name));
     const querySnapshot = await getDocs(q);
-    if (querySnapshot.empty) {
+    if (querySnapshot.docs.length <= 0) {
       res.status(404).send("Ingredient not found");
     } else {
-      const data = querySnapshot[0].data();
+      const doc = querySnapshot.docs[0];
       const result = {
-        id: data.id,
-        ...data
+        id: doc.id,
+        ...doc.data()
       };
       res.status(200).send(result);
     }
@@ -118,7 +116,7 @@ router.post("/get-recipe", async (req, res) => {
       "- Summary, contains healthiness rating alongside the nutrition information write in paragraph.\n" +
       "- Title, contains food/recipe title.";
 
-    const responseContent = await getChatGPTResponse(message_template);
+    const responseContent = await getChatGPTResponse(message_template) ?? await getGroqAIResponse(message_template);
     res.status(200).json(responseContent);
     await addRecipeHistory(responseContent);
   } catch (e) {
@@ -130,13 +128,10 @@ router.post("/get-recipe", async (req, res) => {
 router.get("/get-all-recipe", async (req, res) => {
   try {
     const querySnapshot = await getDocs(recipeDB);
-    const results = querySnapshot.docs.map(doc => {
-      let data = doc.data();
-      return {
-        id: data.id,
-        ...data
-      };
-    });
+    const results = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
     res.status(200).send(results);
   } catch (e) {
     console.log(e);
@@ -231,6 +226,40 @@ async function getChatGPTResponse(message) {
 
     req.write(data);
     req.end();
+  });
+}
+
+async function getGroqAIResponse(message) {
+  return new Promise((resolve, reject) => {
+    const groq = new Groq({ apiKey: process.env.GROQ_KEY });
+
+    const response = groq.chat.completions.create({
+      messages: message,
+      model: "llama3-8b-8192",
+      temperature: 0.3,
+      max_tokens: 2048
+    });
+  
+    if (response.choices && response.choices.length > 0) {
+      const raw = response.choices[0].message.content;
+      const title = extractSection(raw, "Title");
+      const ingredients = extractSection(raw, "Ingredients");
+      const instructions = extractSection(raw, "Instructions");
+      const instruction = instructions; // For Android needs
+      const summary = extractSection(raw, "Summary");
+  
+      resolve({
+        title,
+        ingredients,
+        instructions,
+        instruction,
+        summary,
+        raw
+      });
+    } else {
+      console.error("Unexpected ChatGPT API response format:", response);
+      reject(new Error("Unexpected ChatGPT API response format"));
+    }
   });
 }
 
