@@ -211,17 +211,18 @@ async function getChatGPTResponse(message) {
             });
           } else {
             console.error("Unexpected ChatGPT API response format:", response);
-            reject(new Error("Unexpected ChatGPT API response format"));
+            reject(null);
           }
         } catch (error) {
           console.error("Error parsing ChatGPT API response:", error.message);
-          reject(new Error("Error parsing ChatGPT API response"));
+          reject(null);
         }
       });
     });
 
     req.on("error", (error) => {
-      reject(new Error(`Error calling ChatGPT API: ${error.message}`));
+      console.log((`Error calling ChatGPT API: ${error.message}`))
+      reject(null);
     });
 
     req.write(data);
@@ -257,8 +258,8 @@ async function getGroqAIResponse(message) {
         raw
       });
     } else {
-      console.error("Unexpected ChatGPT API response format:", response);
-      reject(new Error("Unexpected ChatGPT API response format"));
+      console.error("Unexpected GroqAI API response format:", response);
+      reject(null);
     }
   });
 }
