@@ -225,7 +225,7 @@ async function getChatGPTResponse(message) {
 
     req.on("error", (error) => {
       console.log((`Error calling ChatGPT API: ${error.message}`))
-      reject(null);
+      resolve(null);
     });
 
     req.write(data);
