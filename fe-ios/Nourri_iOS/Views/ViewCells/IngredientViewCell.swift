@@ -35,5 +35,5 @@ struct IngredientViewCell: View {
 }
 
 #Preview {
-    IngredientViewCell(ingredient: Ingredient(id: 1, name: "Chicken", ccal: 1.2343))
+    IngredientViewCell(ingredient: Ingredient(id: UUID().uuidString, name: "Chicken", ccal: 1.2343))
 }

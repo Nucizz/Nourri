@@ -46,7 +46,14 @@ struct IngredientListSheetView: View {
                     
                 }
                 .listStyle(.plain)
-                .cornerRadius(15)
+                .clipShape(
+                    .rect(
+                        topLeadingRadius: 15,
+                        bottomLeadingRadius: 15,
+                        bottomTrailingRadius: 15,
+                        topTrailingRadius: 15
+                    )
+                )
                                 
             }
                         

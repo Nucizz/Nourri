@@ -32,11 +32,12 @@ struct RecipeViewCell: View {
             }
             
         }
-        .padding(.bottom, 5)
+        .padding(.vertical, 5)
+        .contentShape(Rectangle())
     
     }
 }
 
 #Preview {
-    RecipeViewCell(recipe: Recipe(id: 1, title: "Cookie", ingredients: "Dough", instructions: "Bake", summary: "Yummy but Unhealthy", raw: "Raw contents here!"))
+    RecipeViewCell(recipe: Recipe(id: UUID().uuidString, title: "Cookie", ingredients: "Dough", instructions: "Bake", summary: "Yummy but Unhealthy", raw: "Raw contents here!"))
 }

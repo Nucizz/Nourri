@@ -53,6 +53,8 @@ struct RecipeView: View {
                             .clipShape(
                                 .rect(
                                     topLeadingRadius: 15,
+                                    bottomLeadingRadius: 15, 
+                                    bottomTrailingRadius: 15,
                                     topTrailingRadius: 15
                                 )
                             )

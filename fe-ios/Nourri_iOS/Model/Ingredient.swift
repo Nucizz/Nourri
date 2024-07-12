@@ -8,7 +8,7 @@
 import Foundation
 
 struct Ingredient: Identifiable, Codable, Equatable {
-    let id: Int
+    let id: String
     let name: String
     let ccal: Double
 }
