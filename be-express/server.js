@@ -238,7 +238,7 @@ async function getGroqAIResponse(message) {
   return new Promise((resolve, reject) => {
     const groq = new Groq({ apiKey: process.env.GROQ_KEY });
 
-    const response = groq.chat.completions.create({
+    groq.chat.completions.create({
       messages: {
         role: "user",
         content: message
@@ -246,28 +246,33 @@ async function getGroqAIResponse(message) {
       model: "llama3-8b-8192",
       temperature: 0.3,
       max_tokens: 2048
-    });
-  
-    if (response.choices && response.choices.length > 0) {
-      const raw = response.choices[0].message.content;
-      const title = extractSection(raw, "Title");
-      const ingredients = extractSection(raw, "Ingredients");
-      const instructions = extractSection(raw, "Instructions");
-      const instruction = instructions; // For Android needs
-      const summary = extractSection(raw, "Summary");
-  
-      resolve({
-        title,
-        ingredients,
-        instructions,
-        instruction,
-        summary,
-        raw
-      });
-    } else {
-      console.log("Unexpected GroqAI API response format:", response);
-      reject(null);
-    }
+    })
+    .then(response => {
+      if (response.choices[0]?.message?.content) {
+        const raw = response.choices[0].message.content;
+        const title = extractSection(raw, "Title");
+        const ingredients = extractSection(raw, "Ingredients");
+        const instructions = extractSection(raw, "Instructions");
+        const instruction = instructions; // For Android needs
+        const summary = extractSection(raw, "Summary");
+    
+        resolve({
+          title,
+          ingredients,
+          instructions,
+          instruction,
+          summary,
+          raw
+        });
+      } else {
+        console.log("Unexpected GroqAI API response format:", response);
+        reject(response);
+      }
+    })
+    .catch(error => {
+      console.error("Error calling GroqAI API:", error);
+      reject(error);
+    })
   });
 }
 
