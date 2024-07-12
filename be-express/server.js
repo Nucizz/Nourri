@@ -239,10 +239,10 @@ async function getGroqAIResponse(message) {
     const groq = new Groq({ apiKey: process.env.GROQ_KEY });
 
     groq.chat.completions.create({
-      messages: {
+      messages: [{
         role: "user",
         content: message
-      },
+      }],
       model: "llama3-8b-8192",
       temperature: 0.3,
       max_tokens: 2048
