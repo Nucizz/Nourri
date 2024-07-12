@@ -291,7 +291,7 @@ function extractSection(content, sectionTitle) {
     }
 
     const sectionContent = content.substring(sectionStart + sectionTitle.length + 1, sectionEnd).trim();
-    return sectionContent;
+    return sectionContent.replace(/\*\*/g, ''); // For Groq who always adds **BOLD FORMAT**
   } else {
     return `Unable to extract ${sectionTitle}`;
   }
