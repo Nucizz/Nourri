@@ -118,7 +118,7 @@ router.post("/get-recipe", async (req, res) => {
 
     let responseContent = await getChatGPTResponse(message_template);
     if (!responseContent) {
-      console.log("ChatGPT Failure using GroqAI as fallback instead.")
+      console.log("ChatGPT Failure using GroqAI as fallback instead.");
       responseContent = await getGroqAIResponse(message_template);
     }
     res.status(200).json(responseContent);
@@ -146,7 +146,7 @@ router.get("/get-all-recipe", async (req, res) => {
 // Non-Router Functions
 async function addRecipeHistory(recipeContent) {
   try {
-    const result = await addDoc(ingredientDB, {
+    const result = await addDoc(recipeDB, {
       title: recipeContent.title,
       ingredients: recipeContent.ingredients,
       instructions: recipeContent.instructions,
