@@ -116,7 +116,10 @@ router.post("/get-recipe", async (req, res) => {
       "- Summary, contains healthiness rating alongside the nutrition information write in paragraph.\n" +
       "- Title, contains food/recipe title.";
 
-    const responseContent = await getChatGPTResponse(message_template) ?? await getGroqAIResponse(message_template);
+    let responseContent = await getChatGPTResponse(message_template);
+    if (!responseContent) {
+      responseContent = await getGroqAIResponse(message_template);
+    }
     res.status(200).json(responseContent);
     await addRecipeHistory(responseContent);
   } catch (e) {
