@@ -159,7 +159,7 @@ async function addRecipeHistory(recipeContent) {
 }
 
 async function getChatGPTResponse(message) {
-  return new Promise((resolve, resolve) => {
+  return new Promise((resolve, reject) => {
     const data = JSON.stringify({
       model: "gpt-3.5-turbo",
       messages: [
@@ -225,7 +225,7 @@ async function getChatGPTResponse(message) {
 
     req.on("error", (error) => {
       console.log((`Error calling ChatGPT API: ${error.message}`))
-      resolve(null);
+      reject(null);
     });
 
     req.write(data);
@@ -234,7 +234,7 @@ async function getChatGPTResponse(message) {
 }
 
 async function getGroqAIResponse(message) {
-  return new Promise((resolve, resolve) => {
+  return new Promise((resolve, reject) => {
     const groq = new Groq({ apiKey: process.env.GROQ_KEY });
 
     const response = groq.chat.completions.create({
