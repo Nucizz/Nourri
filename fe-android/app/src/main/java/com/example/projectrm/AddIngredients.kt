@@ -219,7 +219,7 @@ class AddIngredients : Fragment(), DeleteInterface {
                     loadingBar.visibility = View.VISIBLE
                 }
 
-                val API_KEY = "gjeimk0O8olVp9XNJqi9" // Your API Key
+                val API_KEY = "" // Your Roboflow API key. Add it locally, do not commit it.
                 val MODEL_ENDPOINT = "food-ingredients-detection-nxe34/3" // Set model endpoint (Found in Dataset URL)
 
                 // Construct the URL
