@@ -400,7 +400,7 @@
 		123959822B4BD96B00B48AF3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				AI_API_KEY = gjeimk0O8olVp9XNJqi9;
+				AI_API_KEY = "";
 				AI_MODEL_ENDPOINT = "food-ingredients-detection-nxe34/3";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				API_URL = "https://nourri-backend.vercel.app";
@@ -466,7 +466,7 @@
 		123959832B4BD96B00B48AF3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				AI_API_KEY = gjeimk0O8olVp9XNJqi9;
+				AI_API_KEY = "";
 				AI_MODEL_ENDPOINT = "food-ingredients-detection-nxe34/3";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				API_URL = "https://nourri-backend.vercel.app";
